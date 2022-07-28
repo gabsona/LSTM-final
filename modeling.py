@@ -15,8 +15,8 @@ from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 parameters = {'batch_size': [32 ,64 ,128],
-              'epochs': [100],
-              'optimizer__learning_rate': [0.4, 0.2, 1E-0, 1E-1, 1E-3, 1E-5, 1E-7]}
+              'epochs': [50],
+              'optimizer__learning_rate': [0.4, 0.2, 1E-0, 1E-1, 1E-3, 1E-5]}
 
 # parameters = {'batch_size': [16 ,32]}
 
@@ -45,8 +45,8 @@ def reg_model(grid_model):
     model = KerasRegressor(build_fn=grid_model, verbose=1)
     return model
 
-def best_model(X_train, y_train, grid_model, cv = 3):
-    grid_search  = RandomizedSearchCV(grid_model, parameters, cv = cv)
+def best_model(X_train, y_train, model, cv = 2):
+    grid_search  = RandomizedSearchCV(model, parameters, n_iter=2, cv = 2)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)

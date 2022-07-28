@@ -4,7 +4,11 @@ from modeling import *
 from prediction import *
 from visualisation import *
 from helper_functions import *
+
 import os
+from csv import DictWriter
+from datetime import datetime
+import tensorflow as tf
 
 def final_pred(ticker, change='absolute'):
     data = download_data(ticker, '2018-01-01', '2022-01-01', '1d')
@@ -16,7 +20,7 @@ def final_pred(ticker, change='absolute'):
     grid_model = build_model(X_train, loss='mse', optimizer='adam')
     # grid_model = KerasRegressor(build_fn=grid_model, verbose=1)
     model = reg_model(grid_model)
-    my_model = best_model(X_train, y_train, model, cv=3)
+    my_model, grid_result = best_model(X_train, y_train, model, cv=3)
     # dataset_test = data.iloc[:, :-1].loc['2021-01-01':]
     # y_test_change = data_tr.loc['2021-01-01':]
     # y_test_change = np.array(y_test_change.iloc[30:,3])
@@ -31,7 +35,7 @@ def final_pred(ticker, change='absolute'):
     df_preds_abs = upd_df(df_preds)
 
     # summarize results
-    print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+    print("Best Mean cross-validated training accuracy score: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']

@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 def upd_df(df):
     #df = pd.read_csv(f'C:\Stock Price Prediction\df_{ticker}.csv')
@@ -21,7 +22,7 @@ def plot_results(ticker, df, change):
     plt.ylabel('Price')
     plt.legend()
     cwd = os.getcwd()
-    plt.savefig(cwd + f'\\plots\\plot_{ticker}_daily.png')
+    plt.savefig(cwd + f'\\plots_28.07\\plot_{ticker}_daily.png')
 
     # plt.show()
 
@@ -29,7 +30,7 @@ def plot_results(ticker, df, change):
         plt.figure(figsize=(12, 6))
         plt.plot(pd.concat([df['Close_actual'], df['Added_changes']], axis=1))
         plt.title('Close Absolute Change Prediction (only adding changes)')
-        plt.savefig(cwd + f'\\plots\\absolute_change_{ticker}.png')
+        plt.savefig(cwd + f'\\plots_28.07\\absolute_change_{ticker}.png')
         plt.close()
 
     else:
@@ -42,7 +43,7 @@ def plot_loss(my_model, ticker):
     plt.plot(my_model.history_['mean_absolute_percentage_error'], color='purple')
     plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
-    plt.savefig(cwd + f'\\loss_plot\\plot_loss_{ticker}.png')
+    plt.savefig(cwd + f'\\loss_plot_28.07\\plot_loss_{ticker}.png')
 
 
 # def plot_results(ticker, df, change):
