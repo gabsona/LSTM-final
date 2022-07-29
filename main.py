@@ -92,10 +92,10 @@ dict_acc = {'Stock': [], 'Accuracy': [], 'Score': [], 'MSE train': [], 'MSE test
 df_acc = pd.DataFrame(dict_acc)
 df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
-# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA', 'WMT', 'HD']
-stocks = ['XOM', 'JPM'] # no PG
+# stocks = ['XOM', 'JPM'] # no PG
 
 for stock in stocks:
     df_preds, df_preds_abs, clf_acc, score, best_params, mse_train, mse_test = final_pred(stock, change='absolute')

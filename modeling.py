@@ -46,7 +46,7 @@ def reg_model(grid_model):
     return model
 
 def best_model(X_train, y_train, model, cv = 2):
-    grid_search  = RandomizedSearchCV(model, parameters, n_iter=2, cv = 2)
+    grid_search  = RandomizedSearchCV(model, parameters, n_iter=10, cv = 3)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
