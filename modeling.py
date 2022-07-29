@@ -14,9 +14,14 @@ from sklearn.preprocessing import MinMaxScaler
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
-parameters = {'batch_size': [32 ,64 ,128],
+# parameters = {'batch_size': [32 ,64 ,128],
+#               'epochs': [30],
+#               'optimizer__learning_rate': [0.4, 0.2, 1E-0, 1E-1, 1E-3, 1E-5]}
+
+parameters = {'batch_size': [128],
               'epochs': [50],
-              'optimizer__learning_rate': [0.4, 0.2, 1E-0, 1E-1, 1E-3, 1E-5]}
+              'optimizer__learning_rate': [2.5]}
+              # 'model__activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 
@@ -33,7 +38,7 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))
     # 4th LSTM layer
-    grid_model.add(LSTM(units=50))
+    grid_model.add(LSTM(units=50, activation = 'relu'))
     # grid_model.add(Dropout(0.5))
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
@@ -45,8 +50,8 @@ def reg_model(grid_model):
     model = KerasRegressor(build_fn=grid_model, verbose=1)
     return model
 
-def best_model(X_train, y_train, model, cv = 2):
-    grid_search  = RandomizedSearchCV(model, parameters, n_iter=10, cv = 3)
+def best_model(X_train, y_train, model, cv=3):
+    grid_search  = GridSearchCV(model, parameters, cv = 3)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
