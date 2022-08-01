@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_pe
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 
 
@@ -44,11 +45,15 @@ def classification(data, data_main, change):
         data['Pred_change'] = np.where(data['Close_prediction_change'] < 0, 0, 1)
         data = data[1:]
         data['Pred_change'] = data['Pred_change'].astype(int)
-        data['Close_actual'] = data_main.loc['2021-01-01':, 'Close'][30:]
+        data['Close_actual'] = data_main.loc['2018-01-01':'2021-01-01', 'Close'][30:] #'2021-01-01':
         # data['Close_prediction'] = dataset_test['Close'].shift(1) + data.Close_prediction_change
         classification_accuracy = len(data[(data.Actual_change == data.Pred_change)]) / len(data)
+        precision = precision_score(data.Actual_change, data.Pred_change)
+        recall = recall_score(data.Actual_change, data.Pred_change)
+        f1 = f1_score(data.Actual_change, data.Pred_change)
+        acc = accuracy_score(data.Actual_change, data.Pred_change)
 
-    return data, classification_accuracy
+    return data, classification_accuracy, precision, recall, f1, acc
 
 
 

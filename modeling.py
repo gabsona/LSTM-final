@@ -14,14 +14,14 @@ from sklearn.preprocessing import MinMaxScaler
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
-# parameters = {'batch_size': [32 ,64 ,128],
-#               'epochs': [30],
-#               'optimizer__learning_rate': [0.4, 0.2, 1E-0, 1E-1, 1E-3, 1E-5]}
-
-parameters = {'batch_size': [128],
+parameters = {'batch_size': [32 ,64 ,128],
               'epochs': [50],
-              'optimizer__learning_rate': [2.5]}
-              # 'model__activation':'relu'}
+              'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
+
+# parameters = {'batch_size': [128],
+#               'epochs': [30],
+#               'optimizer__learning_rate': [2.5]}
+#               # 'model__activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 
@@ -51,7 +51,7 @@ def reg_model(grid_model):
     return model
 
 def best_model(X_train, y_train, model, cv=3):
-    grid_search  = GridSearchCV(model, parameters, cv = 3)
+    grid_search = GridSearchCV(model, parameters, cv = 3)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
