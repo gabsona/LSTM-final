@@ -10,7 +10,7 @@ def upd_df(df):
     #df = pd.read_csv(f'C:\Stock Price Prediction\df_{ticker}.csv')
     Added_changes = []
     for i in range(len(df)):
-      Added_changes.append(df.Close_actual[0] + df.Close_prediction_change[1] + df.Close_prediction_change[1:i].sum())
+      Added_changes.append(df.Close_actual_change[0] + df.Close_prediction_change[1] + df.Close_prediction_change[1:i].sum()) # changed from Close_actual
 
     df['Added_changes'] = Added_changes
     df['Added_changes'] = df['Added_changes'].shift(-1)
@@ -34,7 +34,7 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
 
     if change == 'absolute':
         plt.figure(figsize=(12, 6))
-        plt.plot(pd.concat([df['Close_actual'], df['Added_changes']], axis=1))
+        plt.plot(pd.concat([df['Close_actual_change'], df['Added_changes']], axis=1))
         plt.title('Close Absolute Change Prediction (only adding changes)')
         Path(path).mkdir(parents=True, exist_ok=True)
         # plt.savefig(cwd + f'\\plots_{date}\\absolute_change_{ticker}.png')

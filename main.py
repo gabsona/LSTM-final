@@ -32,14 +32,15 @@ def final_pred(ticker, change='absolute'):
     d_train = {'Close_actual_change': y_train_close_change, 'Close_prediction_change': preds_train}
     d_test = {'Close_actual_change': y_test_close_change, 'Close_prediction_change': preds_test}
     # d = {'Close_actual_change': y_train_close_change, 'Close_prediction_change': preds}
-    data_pred_train = pd.DataFrame(data=d_train, index=data[30:len(preds)+30].index) #data[-len(preds):].index
-    data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds):].index)
-
+    data_pred_train = pd.DataFrame(data=d_train, index=data[30:len(preds_train)+30].index) #data[-len(preds):].index
+    data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds_test):].index)
+    print(data_pred_train)
+    print(data_pred_test)
     # print('data_pred', data_pred.head())
     # print('data_pred', data_pred.tail())
     df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data, change=change)
-    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred, data, change=change)
-    print(df_preds)
+    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, change=change)
+    # print(df_preds)
     df_preds_abs_train = upd_df(data_pred_train)
     df_preds_abs_test = upd_df(data_pred_test)
 
@@ -59,13 +60,13 @@ def final_pred(ticker, change='absolute'):
     # print("\nTrain R^2 : {}".format(grid_result.score(X_train, y_train)))
     # print("Test  R^2 : {}".format(grid_result.score(X_test, y_test)))
 
-    plot_results(ticker, df_preds_abs, change=change, df_type='train')
-    plot_results(ticker, df_preds_abs, change=change, df_type='test')
+    plot_results(ticker, df_preds_abs_train, change=change, df_type='train')
+    plot_results(ticker, df_preds_abs_test, change=change, df_type='test')
     plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
     best_params = grid_result.best_params_
 
-    return best_score, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test
+    return best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test
 
     # return df_preds, df_preds_abs, classification_accuracy, precision, recall, f1, acc, best_score, best_params, mse_train, mse_test
 
@@ -87,7 +88,7 @@ scores = []
 best_params_ = []
 mse_train_ = []
 mse_test_ = []
-dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision': [], 'Recall': [], 'F1': [], 'Acc': [], 'Score': [], 'MSE train': [], 'MSE test': [], 'Best Parameters': []}
+dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_train': [], 'Precision_test': [],'Recall_train': [],'Recall_test': [], 'F1_train': [], 'F1_test': [], 'Acc_train': [], 'Acc_test': [],'Best_score': [], 'Score_train':[], 'Score_test':[],'Best_parameters': []}
 df_acc = pd.DataFrame(dict_acc)
 df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
@@ -97,17 +98,19 @@ stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NV
 # stocks = ['NFLX'] # no PG
 
 for stock in stocks:
-    df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
+    best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = final_pred(stock, change='absolute')
+    # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
     makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
     makemydir(df_preds_abs_train, stock, "Stock Price Prediction(with added changes) (absolute change) ", df_type = 'train')
     makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
     makemydir(df_preds_abs_test, stock, "Stock Price Prediction(with added changes) (absolute change) ", df_type = 'test')
-    dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Score': score, 'Best Parameters':best_params}
+    dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file
     with open('dict_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
 
-        fieldnames = ['Stock', 'Accuracy', 'Precision', 'Recall', 'F1', 'Acc', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
+        # fieldnames = ['Stock', 'Accuracy', 'Precision', 'Recall', 'F1', 'Acc', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
+        fieldnames = ['Stock', 'Accuracy_train', 'Accuracy_test','Precision_train', 'Precision_test','Recall_train','Recall_test', 'F1_train', 'F1_test', 'Acc_train', 'Acc_test','Best_score', 'Score_train', 'Score_test','Best_parameters']
         dictwriter_object = DictWriter(f_object, fieldnames = dict_append)
 
         # Passing the dictionary as an argument to the Writerow()

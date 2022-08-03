@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-
+#
 parameters = {'batch_size': [32 ,64 ,128],
               'epochs': [50],
               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
@@ -21,15 +21,15 @@ parameters = {'batch_size': [32 ,64 ,128],
 # parameters = {'batch_size': [128],
 #               'epochs': [30],
 #               'optimizer__learning_rate': [2.5]}
-#               # 'model__activation':'relu'}
+# #               # 'model__activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 
-def build_model(X_train, loss = 'mse', optimizer = 'adam'):
+def build_model(X_train, loss = 'mse', optimizer = 'adam'): #changed the layer of relu
 
     grid_model = Sequential()
     # 1st LSTM layer
-    grid_model.add(LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
+    grid_model.add(LSTM(100, activation = 'relu', return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
     # grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
     # 2nd LSTM layer
     # grid_model.add(LSTM(50, return_sequences=True))
@@ -38,7 +38,7 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'):
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))
     # 4th LSTM layer
-    grid_model.add(LSTM(units=50, activation = 'relu'))
+    grid_model.add(LSTM(units=50))
     # grid_model.add(Dropout(0.5))
     # Dense layer that specifies an output of one unit
     grid_model.add(Dense(1))
