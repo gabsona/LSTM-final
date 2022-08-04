@@ -26,7 +26,7 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
 
     if change == 'absolute':
         plt.figure(figsize=(12, 6))
-        plt.plot(pd.concat([df['Close_actual_change'], df['Added_changes']], axis=1))
+        plt.plot(pd.concat([df['Close_actual'], df['Added_changes']], axis=1))
         plt.title('Close Absolute Change Prediction (only adding changes)')
         Path(path).mkdir(parents=True, exist_ok=True)
         # plt.savefig(cwd + f'\\plots_{date}\\absolute_change_{ticker}.png')

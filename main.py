@@ -52,8 +52,8 @@ def final_pred(ticker, change='absolute'):
     df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change=change)
     df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, df_type_='test', change=change)
     print('df_preds_train', df_preds_train)
-    df_preds_abs_train = upd_df(data_pred_train)
-    df_preds_abs_test = upd_df(data_pred_test)
+    df_preds_abs_train = upd_df(df_preds_train)
+    df_preds_abs_test = upd_df(df_preds_test)
 
     # summarize results
     print("Best Mean cross-validated training accuracy score: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
