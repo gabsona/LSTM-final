@@ -13,7 +13,11 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-#
+import keras_tuner as kt
+
+from keras_tuner.tuners import RandomSearch, BayesianOptimization
+
+
 parameters = {'batch_size': [32 ,64 ,128],
               'epochs': [50],
               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
@@ -45,6 +49,7 @@ def build_model(X_train, loss = 'mse', optimizer = 'adam'): #changed the layer o
     grid_model.compile(loss = loss,optimizer = optimizer)
 
     return grid_model
+
 
 def reg_model(grid_model):
     model = KerasRegressor(build_fn=grid_model, verbose=1)

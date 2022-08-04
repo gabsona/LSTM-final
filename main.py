@@ -4,6 +4,7 @@ from modeling import *
 from prediction import *
 from visualisation import *
 from helper_functions import *
+from bayesian import *
 
 import os
 from csv import DictWriter
@@ -17,9 +18,19 @@ def final_pred(ticker, change='absolute'):
     data_tr = data_transform(data, change)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr.iloc[:, :-1], division='by date',
                                                           split_criteria='2021-01-01', scale='yes', step_size=30)
-    grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    model = reg_model(grid_model)
-    my_model, grid_result = best_model(X_train, y_train, model, cv=3)
+    # #gridsearch
+    # grid_model = build_model(X_train, loss='mse', optimizer='adam')
+    # model = reg_model(grid_model)
+    # my_model, grid_result = best_model(X_train, y_train, model, cv=3)
+
+    #bayesian
+    # model = keras_tuner(hp, X_train, y_train)
+    tuner = BayesianOptimization(keras_tuner, objective='mse', max_trials=30, executions_per_trial=1)
+    tuner.search(x=X_train, y=y_train, epochs=50, batch_size=128, validation_data=(X_test, y_test), )
+    best_model = tuner.get_best_models(num_models=1)[0]
+    y_pred = best_model.predict(X_test[0].reshape((1, X_test[0].shape[0], X_test[0].shape[1])))
+    print(y_pred)
+
     # y_test_change = data_tr.loc['2021-01-01':]
     # y_test_change = np.array(y_test_change.iloc[30:,3])
     # y_test_close = np.array(data.loc['2021-01-01':, 'Close'][30:])
