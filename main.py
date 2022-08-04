@@ -18,18 +18,18 @@ def final_pred(ticker, change='absolute'):
     data_tr = data_transform(data, change)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr.iloc[:, :-1], division='by date',
                                                           split_criteria='2021-01-01', scale='yes', step_size=30)
-    # #gridsearch
-    # grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    # model = reg_model(grid_model)
-    # my_model, grid_result = best_model(X_train, y_train, model, cv=3)
+    #gridsearch
+    grid_model = build_model(X_train, loss='mse', optimizer='adam')
+    model = reg_model(grid_model)
+    my_model, grid_result = best_model(X_train, y_train, model, cv=3)
 
-    #bayesian
-    # model = keras_tuner(hp, X_train, y_train)
-    tuner = BayesianOptimization(keras_tuner, objective='mse', max_trials=30, executions_per_trial=1)
-    tuner.search(x=X_train, y=y_train, epochs=50, batch_size=128, validation_data=(X_test, y_test), )
-    best_model = tuner.get_best_models(num_models=1)[0]
-    y_pred = best_model.predict(X_test[0].reshape((1, X_test[0].shape[0], X_test[0].shape[1])))
-    print(y_pred)
+    # #bayesian
+    # # model = keras_tuner(hp, X_train, y_train)
+    # tuner = BayesianOptimization(keras_tuner, objective='mse', max_trials=30, executions_per_trial=1)
+    # tuner.search(x=X_train, y=y_train, epochs=50, batch_size=128, validation_data=(X_test, y_test), )
+    # best_model = tuner.get_best_models(num_models=1)[0]
+    # y_pred = best_model.predict(X_test[0].reshape((1, X_test[0].shape[0], X_test[0].shape[1])))
+    # print(y_pred)
 
     # y_test_change = data_tr.loc['2021-01-01':]
     # y_test_change = np.array(y_test_change.iloc[30:,3])
@@ -49,9 +49,9 @@ def final_pred(ticker, change='absolute'):
     print(data_pred_test)
     # print('data_pred', data_pred.head())
     # print('data_pred', data_pred.tail())
-    df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data, change=change)
-    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, change=change)
-    # print(df_preds)
+    df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change=change)
+    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, df_type_='test', change=change)
+    print('df_preds_train', df_preds_train)
     df_preds_abs_train = upd_df(data_pred_train)
     df_preds_abs_test = upd_df(data_pred_test)
 

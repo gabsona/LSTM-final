@@ -18,14 +18,14 @@ import keras_tuner as kt
 from keras_tuner.tuners import RandomSearch, BayesianOptimization
 
 
-parameters = {'batch_size': [32 ,64 ,128],
-              'epochs': [50],
-              'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
+# parameters = {'batch_size': [32 ,64 ,128],
+#               'epochs': [50],
+#               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
-# parameters = {'batch_size': [128],
-#               'epochs': [30],
-#               'optimizer__learning_rate': [2.5]}
-# #               # 'model__activation':'relu'}
+parameters = {'batch_size': [128],
+              'epochs': [30],
+              'optimizer__learning_rate': [2.5]}
+#               # 'model__activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 

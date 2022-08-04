@@ -29,7 +29,7 @@ def prediction(model, original, X_test, scaler, loss = 'mse'):
 
 
 
-def classification(data, data_main, change):
+def classification(data, data_main, df_type_, change):
     if change == 'no change':
 
         data['Actual_change'] = np.where(data['Close_actual_change'] < data['Close_actual_change'].shift(1), 0, 1)
@@ -45,8 +45,10 @@ def classification(data, data_main, change):
         data['Pred_change'] = np.where(data['Close_prediction_change'] < 0, 0, 1)
         data = data[1:]
         data['Pred_change'] = data['Pred_change'].astype(int)
-        data['Close_actual_train'] = data_main.loc['2018-01-01':'2021-01-01', 'Close'][30:] #'2021-01-01':
-        data['Close_actual_test'] = data_main.loc['2021-01-01':, 'Close'][30:]  # '2021-01-01':
+        if df_type_=='train':
+            data['Close_actual'] = data_main.loc['2018-01-01':'2021-01-01', 'Close'][30:] #'2021-01-01':
+        if df_type_=='test':
+            data['Close_actual'] = data_main.loc['2021-01-01':, 'Close'][30:]  # '2021-01-01':
         # data['Close_prediction'] = dataset_test['Close'].shift(1) + data.Close_prediction_change
         classification_accuracy = len(data[(data.Actual_change == data.Pred_change)]) / len(data)
         precision = precision_score(data.Actual_change, data.Pred_change)
@@ -56,7 +58,15 @@ def classification(data, data_main, change):
 
     return data, classification_accuracy, precision, recall, f1, acc
 
+def upd_df(df):
+    #df = pd.read_csv(f'C:\Stock Price Prediction\df_{ticker}.csv')
+    Added_changes = []
+    for i in range(len(df)):
+      Added_changes.append(df.Close_actual[0] + df.Close_prediction_change[1] + df.Close_prediction_change[1:i].sum()) # changed from Close_actual
 
+    df['Added_changes'] = Added_changes
+    df['Added_changes'] = df['Added_changes'].shift(-1)
+    return df
 
 # def plot_results(ticker, df, data, data_tr, pred, change):
 #     plt.figure(figsize=(12, 6))

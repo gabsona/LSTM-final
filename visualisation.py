@@ -6,15 +6,7 @@ from pathlib import Path
 
 
 
-def upd_df(df):
-    #df = pd.read_csv(f'C:\Stock Price Prediction\df_{ticker}.csv')
-    Added_changes = []
-    for i in range(len(df)):
-      Added_changes.append(df.Close_actual_change[0] + df.Close_prediction_change[1] + df.Close_prediction_change[1:i].sum()) # changed from Close_actual
 
-    df['Added_changes'] = Added_changes
-    df['Added_changes'] = df['Added_changes'].shift(-1)
-    return df
 
 
 def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('%d.%m')):
