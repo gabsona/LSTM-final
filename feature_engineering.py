@@ -23,8 +23,8 @@ def data_split(data, division='by date', split_criteria='2021-01-01', scale='yes
 
     if scale == 'yes':
         scaler = MinMaxScaler(feature_range=(0, 1))
-        df_for_training = scaler.fit_transform(dataset_train)
-        df_for_test = scaler.transform(dataset_test)
+        df_for_training = scaler.fit_transform(dataset_train.values.reshape(-1, 1)) #added values.reshape(-1, 1) for minmaxscaler
+        df_for_test = scaler.transform(dataset_test.values.reshape(-1, 1))
 
     else:
         scaler = None
@@ -47,5 +47,17 @@ def data_split(data, division='by date', split_criteria='2021-01-01', scale='yes
         dataX.append(df_for_test[i - step_size:i, 0:df_for_test.shape[1]])
         dataY.append(df_for_test[i, -1]) #3
         X_test, y_test = np.array(dataX), np.array(dataY)
+    # print("X train y train")
+    # print(X_train[0])
+    # print(y_train[0])
+    # print(X_train[1])
+    # print(y_train[1])
+    #
+    # print(X_test[0])
+    # print(y_test[0])
+    # print(X_test[1])
+    # print(y_test[1])
+
+    # print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     return X_train, y_train, X_test, y_test, scaler

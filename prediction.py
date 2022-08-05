@@ -13,12 +13,21 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 
 
 def prediction(model, original, X_test, scaler, loss = 'mse'):
-
+  print('X_test', X_test)
+  print('X_test', X_test.shape)
   prediction = model.predict(X_test)
+  # print('pred1 ', prediction)
   prediction = prediction.reshape(prediction.shape[0],1)
-  prediction_copies_array = np.repeat(prediction, X_test.shape[2], axis=-1) #change this one
-
-  pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X_test.shape[2])))[:,3]
+  # print('pred2 ', prediction)
+  pred = scaler.inverse_transform(prediction)
+  print('pred3 ', pred)
+  pred = np.reshape(pred, (len(prediction),))# X_test.shape[2]))
+  print(original.shape)
+  print(pred.shape)
+  # print('pred4 ', pred)
+  # prediction_copies_array = np.repeat(prediction, X_test.shape[2], axis=-1) #change this one
+  # print('pred3 ', prediction_copies_array)
+  # pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X_test.shape[2])))[:,3]
   #pred = np.reshape(pred, (len(prediction), X_test.shape[2]))[:, 3]
   if loss == 'mse':
     testScore = mean_squared_error(original, pred)

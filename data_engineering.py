@@ -30,9 +30,24 @@ def data_transform(data, change):
 
         data['Close_abs_change'] = data.Close.shift(-1) - data.Close
         data['Close_abs_change'] = data['Close_abs_change'].shift(1)
-        data['Open_Close_abs_change'] = data['Close'] - data['Open']
+        # data['Open_Close_abs_change'] = data['Close'] - data['Open']
 
         data = data.iloc[1:, 6:]
+
+    elif change == 'only close change':
+
+        data['Close_abs_change'] = data.Close.shift(-1) - data.Close
+        data['Close_abs_change'] = data['Close_abs_change'].shift(1)
+
+        # data = data.drop(columns=['Close', 'Adj Close', 'Volume'], axis=1)
+        data = data.Close_abs_change
+
+    elif change == 'OHL only close change':
+
+        data['Close_abs_change'] = data.Close.shift(-1) - data.Close
+        data['Close_abs_change'] = data['Close_abs_change'].shift(1)
+
+        data = data.drop(columns=['Close', 'Adj Close', 'Volume'], axis=1)
 
     elif change == 'percentage':
 
@@ -53,3 +68,8 @@ def data_transform(data, change):
 
     return data
 
+# data = download_data('NFLX', '2018-01-01', '2022-01-01', '1d')
+# # data = all_indicators(data) # adds TIs
+# data.dropna(inplace = True)
+# data_tr = data_transform(data, change='only close')
+# print(data_tr)

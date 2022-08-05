@@ -14,10 +14,13 @@ import tensorflow as tf
 def final_pred(ticker, change='absolute'):
     data = download_data(ticker, '2018-01-01', '2022-01-01', '1d')
     # data = all_indicators(data) # adds TIs
-    data.dropna(inplace = True)
-    data_tr = data_transform(data, change)
-    X_train, y_train, X_test, y_test, scaler = data_split(data_tr.iloc[:, :-1], division='by date',
-                                                          split_criteria='2021-01-01', scale='yes', step_size=30)
+    # data.dropna(inplace = True)
+    data_tr = data_transform(data, change='only close change')
+    # data_tr = data['Close'] #taking only close values
+    data_tr.dropna(inplace=True)
+    X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division='by date',
+                                                          split_criteria='2021-01-01', scale='yes', step_size=30) #data_tr.iloc[:, :-1]
+    print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
     #gridsearch
     grid_model = build_model(X_train, loss='mse', optimizer='adam')
     model = reg_model(grid_model)
@@ -34,8 +37,9 @@ def final_pred(ticker, change='absolute'):
     # y_test_change = data_tr.loc['2021-01-01':]
     # y_test_change = np.array(y_test_change.iloc[30:,3])
     # y_test_close = np.array(data.loc['2021-01-01':, 'Close'][30:])
-    y_test_close_change = np.array(data_tr.loc['2021-01-01':, 'Close_abs_change'][30:])
-    y_train_close_change = np.array(data_tr.loc['2018-01-01':'2021-01-01', 'Close_abs_change'][30:])
+    print(data_tr)
+    y_train_close_change = np.array(data_tr.loc['2018-01-01':'2021-01-01'][30:])  # 'Close_abs_change'
+    y_test_close_change = np.array(data_tr.loc['2021-01-01':][30:]) #'Close_abs_change'
     preds_train, score_train = prediction(my_model, y_train_close_change, X_train, scaler, loss='mse') #y_test_close_change
     preds_test, score_test = prediction(my_model, y_test_close_change, X_test, scaler, loss='mse')
     # print('preds:',preds.shape)
@@ -105,20 +109,21 @@ df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
 stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
-# stocks = ['CVX', 'MA', 'WMT', 'HD']
+# stocks = ['CVX', 'MA']
 # stocks = ['NFLX'] # no PG
 
 for stock in stocks:
+    print('stock: ', stock)
     best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = final_pred(stock, change='absolute')
     # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
-    makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_train, stock, "Stock Price Prediction(with added changes) (absolute change) ", df_type = 'train')
-    makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_test, stock, "Stock Price Prediction(with added changes) (absolute change) ", df_type = 'test')
+    # makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
+    makemydir(df_preds_abs_train, stock, "Only close (absolute change) ", df_type = 'train')
+    # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
+    makemydir(df_preds_abs_test, stock, "Only close (absolute change) ", df_type = 'test')
     dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file
-    with open('dict_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
+    with open('dict_only_close_change'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
 
         # fieldnames = ['Stock', 'Accuracy', 'Precision', 'Recall', 'F1', 'Acc', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
         fieldnames = ['Stock', 'Accuracy_train', 'Accuracy_test','Precision_train', 'Precision_test','Recall_train','Recall_test', 'F1_train', 'F1_test', 'Acc_train', 'Acc_test','Best_score', 'Score_train', 'Score_test','Best_parameters']
