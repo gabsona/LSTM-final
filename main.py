@@ -15,9 +15,10 @@ def final_pred(ticker, change='absolute'):
     data = download_data(ticker, '2018-01-01', '2022-01-01', '1d')
     # data = all_indicators(data) # adds TIs
     # data.dropna(inplace = True)
-    data_tr = data_transform(data, change='only close change')
+    data_tr = data_transform(data, change='OHL only close change')
     # data_tr = data['Close'] #taking only close values
     data_tr.dropna(inplace=True)
+    print(data_tr)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division='by date',
                                                           split_criteria='2021-01-01', scale='yes', step_size=30) #data_tr.iloc[:, :-1]
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
@@ -38,8 +39,8 @@ def final_pred(ticker, change='absolute'):
     # y_test_change = np.array(y_test_change.iloc[30:,3])
     # y_test_close = np.array(data.loc['2021-01-01':, 'Close'][30:])
     print(data_tr)
-    y_train_close_change = np.array(data_tr.loc['2018-01-01':'2021-01-01'][30:])  # 'Close_abs_change'
-    y_test_close_change = np.array(data_tr.loc['2021-01-01':][30:]) #'Close_abs_change'
+    y_train_close_change = np.array(data_tr.loc['2018-01-01':'2021-01-01','Close_abs_change'][30:])  # 'Close_abs_change' added
+    y_test_close_change = np.array(data_tr.loc['2021-01-01':,'Close_abs_change'][30:]) #'Close_abs_change' added
     preds_train, score_train = prediction(my_model, y_train_close_change, X_train, scaler, loss='mse') #y_test_close_change
     preds_test, score_test = prediction(my_model, y_test_close_change, X_test, scaler, loss='mse')
     # print('preds:',preds.shape)

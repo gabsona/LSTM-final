@@ -23,8 +23,8 @@ def data_split(data, division='by date', split_criteria='2021-01-01', scale='yes
 
     if scale == 'yes':
         scaler = MinMaxScaler(feature_range=(0, 1))
-        df_for_training = scaler.fit_transform(dataset_train.values.reshape(-1, 1)) #added values.reshape(-1, 1) for minmaxscaler
-        df_for_test = scaler.transform(dataset_test.values.reshape(-1, 1))
+        df_for_training = scaler.fit_transform(dataset_train) #removed values.reshape(-1, 1) for minmaxscaler
+        df_for_test = scaler.transform(dataset_test)
 
     else:
         scaler = None
