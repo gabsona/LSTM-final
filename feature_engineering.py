@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 #add scaler type input
-def data_split(data, division='by date', split_criteria='2021-01-01', scale='yes', step_size=30):
+def data_split(data, division, split_criteria, scale, step_size):
     
     if division == 'by date':
         dataset_train = data.loc[:split_criteria]

@@ -61,7 +61,7 @@ def data_transform(data, change):
         data = data.iloc[1:, 6:]
 
     elif change == 'no_change':
-        data = data
+        data = data.iloc[:,:4]
 
     else:
         raise Exception('Wrong input')

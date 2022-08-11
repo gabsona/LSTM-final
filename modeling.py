@@ -10,7 +10,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
-from sklearn.preprocessing import MinMaxScaler
 from scikeras.wrappers import KerasRegressor
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import keras_tuner as kt
@@ -22,7 +21,7 @@ parameters = {'batch_size': [32 ,64 ,128],
               'epochs': [50],
               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
-# parameters = {'batch_size': [512],
+# parameters = {'batch_size': [64],
 #               'epochs': [30],
 #               'optimizer__learning_rate': [2.5]}
 # # #               # 'model__activation':'relu'}
@@ -31,7 +30,7 @@ parameters = {'batch_size': [32 ,64 ,128],
 
 
 
-def build_model(X_train, loss = 'mse', optimizer = 'adam'): #changed the layer of relu
+def build_model(X_train, loss, optimizer): #changed the layer of relu
 
     grid_model = Sequential()
     # 1st LSTM layer
@@ -57,13 +56,14 @@ def reg_model(grid_model):
     model = KerasRegressor(build_fn=grid_model, verbose=1)
     return model
 
-def best_model(X_train, y_train, model, cv=3):
-    grid_search = GridSearchCV(model, parameters, cv = 3)
+def best_model(X_train, y_train, model, cv):
+    grid_search = GridSearchCV(model, parameters, cv = cv)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
     my_model = grid_result.best_estimator_
+    # my_model.save("model_saved")
     return my_model, grid_result
 
 
