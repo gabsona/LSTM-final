@@ -20,6 +20,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     data_tr.dropna(inplace=True)
     print(data_tr)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size)
+    print('y_test:', y_test[:5])
     target_col_name = data_tr.columns[-1]
     print(target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
@@ -27,7 +28,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     #gridsearch
     grid_model = build_model(X_train, loss='mse', optimizer='adam')
     model = reg_model(grid_model)
-    my_model, grid_result = best_model(X_train, y_train, model, cv=3)
+    my_model, grid_result = best_model(X_train, y_train, model, cv=3, ticker=ticker)
 
     # #bayesian
     # # model = keras_tuner(hp, X_train, y_train)
@@ -37,47 +38,33 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     # y_pred = best_model.predict(X_test[0].reshape((1, X_test[0].shape[0], X_test[0].shape[1])))
     # print(y_pred)
 
-    # y_test_change = data_tr.loc['2021-01-01':]
-    # y_test_change = np.array(y_test_change.iloc[30:,3])
-    # y_test_close = np.array(data.loc['2021-01-01':, 'Close'][30:])
-    print(data_tr)
+    print('data_tr: ', data_tr.head())
     y_train_close = np.array(data_tr.loc['2018-01-01':'2021-01-01',target_col_name][step_size:])  # 'Close_abs_change' added
     y_test_close = np.array(data_tr.loc['2021-01-01':,target_col_name][step_size:]) #'Close_abs_change' added
 
     preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss='mse') #y_test_close_change
     preds_test, score_test = prediction(my_model, y_test_close, X_test, scaler, loss='mse')
-    # print('preds:',preds.shape)
-    # print(y_train_close_change)
-    d_train = {'Close_actual': y_train, 'Close_prediction': preds_train} #y_test_close_change
-    d_test = {'Close_actual': y_test, 'Close_prediction': preds_test} #y_test_close_change
+
+    d_train = {'Close_actual': y_train_close, 'Close_prediction': preds_train} #y_test_close_change
+    d_test = {'Close_actual': y_test_close, 'Close_prediction': preds_test} #y_test_close_change
     # d = {'Close_actual_change': y_train_close_change, 'Close_prediction_change': preds}
     data_pred_train = pd.DataFrame(data=d_train, index=data[step_size:len(preds_train) + step_size].index) #data[-len(preds):].index
     data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds_test):].index)
-    print(data_pred_train)
-    print(data_pred_test)
+    print('data_pred_train:',data_pred_train)
+    print('data_pred_test:', data_pred_test)
     # print('data_pred', data_pred.head())
     # print('data_pred', data_pred.tail())
     df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change='no_change')
     df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, df_type_='test', change='no_change')
     print('df_preds_train', df_preds_train)
-    df_preds_abs_train = upd_df(df_preds_train)
-    df_preds_abs_test = upd_df(df_preds_test)
+    df_preds_abs_train = upd_df(df_preds_train, change = change)
+    df_preds_abs_test = upd_df(df_preds_test, change = change)
 
     # summarize results
     print("Best Mean cross-validated training accuracy score: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
-
-    # mse_train = mean_squared_error(y_train, my_model.predict(X_train)) #y_train is scaled
-    # mse_test = mean_squared_error(y_test, my_model.predict(X_test))
-    # for mean, stdev, param in zip(means, stds, params):
-    #     print("%f (%f) with: %r" % (mean, stdev, param))
-    # print("Train MSE : {}".format(mean_squared_error(y_train, grid_result.predict(X_train))))
-    # print("Test  MSE : {}".format(mean_squared_error(y_test, grid_result.predict(X_test))))
-    #
-    # print("\nTrain R^2 : {}".format(grid_result.score(X_train, y_train)))
-    # print("Test  R^2 : {}".format(grid_result.score(X_test, y_test)))
 
     plot_results(ticker, df_preds_abs_train, change=change, df_type='train')
     plot_results(ticker, df_preds_abs_test, change=change, df_type='test')
@@ -109,12 +96,12 @@ mse_train_ = []
 mse_test_ = []
 dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_train': [], 'Precision_test': [],'Recall_train': [],'Recall_test': [], 'F1_train': [], 'F1_test': [], 'Acc_train': [], 'Acc_test': [],'Best_score': [], 'Score_train':[], 'Score_test':[],'Best_parameters': []}
 df_acc = pd.DataFrame(dict_acc)
-df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
+# df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
-stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'FB', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA']
-# stocks = ['NFLX'] # no PG
+stocks = ['NFLX'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)

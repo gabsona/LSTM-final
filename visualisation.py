@@ -11,6 +11,7 @@ from pathlib import Path
 
 def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('%d.%m')):
     plt.figure(figsize=(12, 6))
+    print(df)
     plt.plot(df.Close_actual, color='green', label='Real Price') #Close_actual_change
     plt.plot(df.Close_prediction, color='purple', label='Predicted Price') #Close_prediction_change
     plt.title(f'{ticker}')
