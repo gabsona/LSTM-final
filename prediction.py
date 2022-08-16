@@ -12,7 +12,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 
 
 
-def prediction(model, original, X, scaler, loss = 'mse'):
+def prediction(model, original, X, scaler, loss ='mse'):
   print('X', X.shape)
   prediction = model.predict(X)
   # print('pred1 ', prediction[:5])

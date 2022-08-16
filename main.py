@@ -20,14 +20,19 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     data_tr.dropna(inplace=True)
     print(data_tr)
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size)
-    print('y_test:', y_test[:5])
+    # print('y_test:', y_test[:5])
     target_col_name = data_tr.columns[-1]
-    print(target_col_name)
+    # print(target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     #gridsearch
     grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    model = reg_model(grid_model)
+    model = reg_model(grid_model, ticker)
+    # print('layer1_weights', layer1_weights)
+    # lw1_df = pd.DataFrame(layer1_weights)
+    # lw2_df = pd.DataFrame(layer2_weights)
+    # lw1_df.to_csv(f'lw1_{ticker}.csv')
+    # lw2_df.to_csv(f'lw2_{ticker}.csv')
     my_model, grid_result = best_model(X_train, y_train, model, cv=3, ticker=ticker)
 
     # #bayesian
@@ -50,8 +55,8 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     # d = {'Close_actual_change': y_train_close_change, 'Close_prediction_change': preds}
     data_pred_train = pd.DataFrame(data=d_train, index=data[step_size:len(preds_train) + step_size].index) #data[-len(preds):].index
     data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds_test):].index)
-    print('data_pred_train:',data_pred_train)
-    print('data_pred_test:', data_pred_test)
+    # print('data_pred_train:',data_pred_train)
+    # print('data_pred_test:', data_pred_test)
     # print('data_pred', data_pred.head())
     # print('data_pred', data_pred.tail())
     df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change='no_change')
@@ -98,10 +103,10 @@ dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_tr
 df_acc = pd.DataFrame(dict_acc)
 # df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
-# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA']
-stocks = ['NFLX'] # no PG
+# stocks = ['NFLX'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)

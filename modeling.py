@@ -21,14 +21,14 @@ from keras.callbacks import LambdaCallback
 from keras_tuner.tuners import RandomSearch, BayesianOptimization
 
 
-# parameters = {'batch_size': [32 ,64 ,128],
-#               'epochs': [50],
-#               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
+parameters = {'batch_size': [32 ,64 ,128],
+              'epochs': [50],
+              'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
-parameters = {'batch_size': [32],
-              'epochs': [10],
-              'optimizer__learning_rate': [2.5]}
-# #               # 'model__activation':'relu'}
+# parameters = {'batch_size': [32],
+#               'epochs': [10],
+#               'optimizer__learning_rate': [2.5]}
+# # #               # 'model__activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 
@@ -59,17 +59,26 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     return grid_model
 
 
-def reg_model(grid_model):
+def reg_model(grid_model, ticker):
     # for layer in model.layers:
     #     weights = layer.get_weights()
     # for layer in model.layers: print(layer.get_config(), layer.get_weights())
     print('grid model layers', grid_model.layers)
     # print_weights = LambdaCallback(on_epoch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()))
     # print_weights = LambdaCallback(on_batch_end=lambda batch, logs: (for layer in grid_model.layers print('WEIGHTS:',layer.get_weights())))
-    print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()[0]))
-    print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 2:', grid_model.layers[1].get_weights()[0]))
-    model = KerasRegressor(build_fn=grid_model, verbose=1, callbacks = [print_weights1, print_weights2])
+    layer1_weights = []
+    layer2_weights = []
+    print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
+    print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 2:', grid_model.layers[1].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
 
+    # print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: pd.DataFrame(layer1_weights.append(grid_model.layers[0].get_weights()[0])).to_csv(f'lw1_{ticker}.csv'))
+    # print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: layer2_weights.append(grid_model.layers[1].get_weights()[0]))
+    model = KerasRegressor(build_fn=grid_model, verbose=1, callbacks=[print_weights1, print_weights2])
+
+    # lw1_df = pd.DataFrame(layer1_weights)
+    # lw2_df = pd.DataFrame(layer2_weights)
+    # lw1_df.to_csv(f'lw1_{ticker}.csv')
+    # lw2_df.to_csv(f'lw2_{ticker}.csv')
     return model
 
 def best_model(X_train, y_train, model, cv, ticker):
@@ -79,17 +88,21 @@ def best_model(X_train, y_train, model, cv, ticker):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
     my_model = grid_result.best_estimator_
+    # weight = my_model.build_fn.get_weights()
+    # np.savetxt('weight.csv', weight, fmt='%s', delimiter=',')
+
     # print('params:', grid_result.best_params_)
     # print('grid_result:', grid_result)
     # print('my_model:', my_model)
     # to_be_saved_model = my_model.fit(X_train, y_train, callbacks=None)
     # print('to_be_saved_model',to_be_saved_model)
+
     # saving the model
-    cwd = os.getcwd()
-    dir = os.path.join(cwd, 'saved_models_' + datetime.today().strftime('%d.%m'))
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-    joblib.dump(my_model, dir + f'\\model_{ticker}.pkl')
+    # cwd = os.getcwd()
+    # dir = os.path.join(cwd, 'saved_models_' + datetime.today().strftime('%d.%m'))
+    # if not os.path.exists(dir):
+    #     os.makedirs(dir)
+    # joblib.dump(my_model, dir + f'\\model_{ticker}.pkl')
 
     print('Keys: ', my_model.history_.keys())
     return my_model, grid_result
