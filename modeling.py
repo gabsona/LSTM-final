@@ -19,9 +19,11 @@ from datetime import datetime
 from keras.callbacks import LambdaCallback
 
 from keras_tuner.tuners import RandomSearch, BayesianOptimization
+from tensorflow.keras import initializers
 
 
-parameters = {'batch_size': [32 ,64 ,128],
+parameters = {# 'batch_size': [32 ,64 ,128],
+              'batch_size': [32],
               'epochs': [50],
               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
@@ -38,28 +40,33 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
 
     grid_model = Sequential()
     # 1st LSTM layer
-    grid_model.add(LSTM(100, activation = 'relu', return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]))) # (30,4)
-    # grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
+    initializer = tf.keras.initializers.GlorotUniform()
+
+    grid_model.add(LSTM(100, activation = 'relu', return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer)) # (30,4)
+    grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
+
     # 2nd LSTM layer
     # grid_model.add(LSTM(50, return_sequences=True))
     # grid_model.add(Dropout(0.2))
+
     # 3rd LSTM layer
     # grid_model.add(LSTM(units=50, return_sequences=True))
     # grid_model.add(Dropout(0.5))
-    # 4th LSTM layer
-    grid_model.add(LSTM(units=50))
-    # grid_model.add(Dropout(0.5))
-    # Dense layer that specifies an output of one unit
+
+    # 4th LSTM layer, we wont use return sequence true in last layers as we dont want to previous output
+    grid_model.add(LSTM(units=50, kernel_initializer='glorot_uniform'))
+    grid_model.add(Dropout(0.5))
+
+    # Output layer , we wont pass any activation as its continous value model
     grid_model.add(Dense(1))
-    print('grid_model:', grid_model)
-    # print_weights = LambdaCallback(on_epoch_end=lambda batch, logs: print('WEIGHTS:', grid_model.layers[0].get_weights()))
 
     grid_model.compile(loss = loss,optimizer = optimizer)
+    print('grid_model:', grid_model)
 
     return grid_model
 
 
-def reg_model(grid_model, ticker):
+def reg_model(grid_model):
     # for layer in model.layers:
     #     weights = layer.get_weights()
     # for layer in model.layers: print(layer.get_config(), layer.get_weights())
@@ -69,7 +76,7 @@ def reg_model(grid_model, ticker):
     layer1_weights = []
     layer2_weights = []
     print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
-    print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 2:', grid_model.layers[1].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
+    print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 2:', grid_model.layers[2].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
 
     # print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: pd.DataFrame(layer1_weights.append(grid_model.layers[0].get_weights()[0])).to_csv(f'lw1_{ticker}.csv'))
     # print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: layer2_weights.append(grid_model.layers[1].get_weights()[0]))
@@ -81,7 +88,7 @@ def reg_model(grid_model, ticker):
     # lw2_df.to_csv(f'lw2_{ticker}.csv')
     return model
 
-def best_model(X_train, y_train, model, cv, ticker):
+def best_model(X_train, y_train, model, cv):
     grid_search = GridSearchCV(model, parameters, cv = cv)
 
     # with tf.device('/gpu:0'):

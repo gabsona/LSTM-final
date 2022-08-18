@@ -14,7 +14,6 @@ import tensorflow as tf
 def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no_change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30 ):
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
-    # data.dropna(inplace = True)
     data_tr = data_transform(data, change = change)
     # data_tr = data['Close'] #taking only close values
     data_tr.dropna(inplace=True)
@@ -22,18 +21,18 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size)
     # print('y_test:', y_test[:5])
     target_col_name = data_tr.columns[-1]
-    # print(target_col_name)
+    print('Target column: ', target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     #gridsearch
     grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    model = reg_model(grid_model, ticker)
+    model = reg_model(grid_model)
     # print('layer1_weights', layer1_weights)
     # lw1_df = pd.DataFrame(layer1_weights)
     # lw2_df = pd.DataFrame(layer2_weights)
     # lw1_df.to_csv(f'lw1_{ticker}.csv')
     # lw2_df.to_csv(f'lw2_{ticker}.csv')
-    my_model, grid_result = best_model(X_train, y_train, model, cv=3, ticker=ticker)
+    my_model, grid_result = best_model(X_train, y_train, model, cv=3)
 
     # #bayesian
     # # model = keras_tuner(hp, X_train, y_train)

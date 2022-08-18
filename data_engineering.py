@@ -65,7 +65,7 @@ def data_transform(data, change):
 
     else:
         raise Exception('Wrong input')
-
+    print('Data shape: ', data.shape)
     return data
 
 # data = download_data('NFLX', '2018-01-01', '2022-01-01', '1d')

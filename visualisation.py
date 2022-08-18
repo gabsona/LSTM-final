@@ -4,11 +4,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-
-
-
-
-
 def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('%d.%m')):
     plt.figure(figsize=(12, 6))
     print(df)

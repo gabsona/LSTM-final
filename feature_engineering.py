@@ -1,9 +1,3 @@
-import yfinance as yf
-import sys
-
-import tensorflow as tf
-
-
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -48,8 +42,8 @@ def data_split(data, division, split_criteria, scale, step_size):
         dataY.append(df_for_test[i, -1]) #3
         X_test, y_test = np.array(dataX), np.array(dataY)
     # print("X train y train")
-    # print(X_train[0])
-    # print(y_train[0])
+    print(X_train[0])
+    print(y_train[0])
     # print(X_train[1])
     # print(y_train[1])
     #
@@ -57,7 +51,5 @@ def data_split(data, division, split_criteria, scale, step_size):
     # print(y_test[0])
     # print(X_test[1])
     # print(y_test[1])
-
-    # print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     return X_train, y_train, X_test, y_test, scaler

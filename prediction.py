@@ -56,9 +56,9 @@ def classification(data, data_main, df_type_, change):
         data['Pred_change'] = np.where(data['Close_prediction'] < 0, 0, 1)
         data = data[1:]
         data['Pred_change'] = data['Pred_change'].astype(int)
-        if df_type_=='train':
+        if df_type_ == 'train':
             data['Close_actual'] = data_main.loc['2018-01-01':'2021-01-01', 'Close'][30:] #'2021-01-01':
-        if df_type_=='test':
+        if df_type_ == 'test':
             data['Close_actual'] = data_main.loc['2021-01-01':, 'Close'][30:]  # '2021-01-01':
         # data['Close_prediction'] = dataset_test['Close'].shift(1) + data.Close_prediction_change
     classification_accuracy = len(data[(data.Actual_change == data.Pred_change)]) / len(data)
