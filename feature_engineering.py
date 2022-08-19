@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
 #add scaler type input
-def data_split(data, division, split_criteria, scale, step_size):
+def data_split(data, division, split_criteria, scale, step_size, target_col_name):
     
     if division == 'by date':
         dataset_train = data.loc[:split_criteria]
@@ -32,14 +32,14 @@ def data_split(data, division, split_criteria, scale, step_size):
     dataY = []
     for i in range(step_size, len(df_for_training)):
         dataX.append(df_for_training[i - step_size:i, 0:df_for_training.shape[1]])
-        dataY.append(df_for_training[i, -1]) #3
+        dataY.append(df_for_training[i, data.columns.get_loc(target_col_name)]) #3
         X_train, y_train = np.array(dataX), np.array(dataY)
 
     dataX = []
     dataY = []
     for i in range(step_size, len(df_for_test)):
         dataX.append(df_for_test[i - step_size:i, 0:df_for_test.shape[1]])
-        dataY.append(df_for_test[i, -1]) #3
+        dataY.append(df_for_test[i, data.columns.get_loc(target_col_name)]) #3
         X_test, y_test = np.array(dataX), np.array(dataY)
     # print("X train y train")
     print(X_train[0])

@@ -12,29 +12,30 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 
 
 
-def prediction(model, original, X, scaler, loss ='mse'):
-  print('X', X.shape)
+def prediction(model, original, X, scaler, loss, problem_type):
+  print('X', X.shape, X.head())
   prediction = model.predict(X)
-  # print('pred1 ', prediction[:5])
+  print('pred1 ', prediction[:5])
   prediction = prediction.reshape(prediction.shape[0],1)
-  # print('pred2 ', prediction[:5])
+  print('pred2 ', prediction[:5])
   # pred = scaler.inverse_transform(prediction)
   # print('pred3 ', pred)
   # pred = np.reshape(pred, (len(prediction),))# X_test.shape[2]))
-  print(original.shape)
   # print(pred.shape)
   # print('pred4 ', pred)
   prediction_copies_array = np.repeat(prediction, X.shape[2], axis=-1) #change this one
-  # print('pred3 ', prediction_copies_array[:5])
+  print('pred3 ', prediction_copies_array[:5])
   # print('pred3.shape ', prediction_copies_array.shape)
   pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X.shape[2])))[:,3]
-  # print('pred4', pred[:5], pred.shape)
+  print('pred4', pred[:5], pred.shape)
   print('original', original.shape)
   # pred = np.reshape(pred, (len(prediction), X_test.shape[2]))[:, 3]
   if loss == 'mse':
     testScore = mean_squared_error(original, pred)
   if loss == 'mape':
     testScore = mean_absolute_percentage_error(original, pred)
+  if loss == 'binary_crossentropy':
+    testScore = accuracy_score(original, pred)
 
   return pred, testScore
 

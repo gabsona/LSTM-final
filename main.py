@@ -11,22 +11,21 @@ from csv import DictWriter
 from datetime import datetime
 import tensorflow as tf
 
-def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no_change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30 ):
+def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='classification', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='binary_crossentropy' ):
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
     data_tr = data_transform(data, change = change)
     # data_tr = data['Close'] #taking only close values
-    data_tr.dropna(inplace=True)
-    print(data_tr)
-    X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size)
-    # print('y_test:', y_test[:5])
+
     target_col_name = data_tr.columns[-1]
     print('Target column: ', target_col_name)
+
+    X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size, target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     #gridsearch
-    grid_model = build_model(X_train, loss='mse', optimizer='adam')
-    model = reg_model(grid_model)
+    grid_model = build_model(X_train, loss= loss, optimizer='adam')
+    model = main_model(grid_model, change)
     # print('layer1_weights', layer1_weights)
     # lw1_df = pd.DataFrame(layer1_weights)
     # lw2_df = pd.DataFrame(layer2_weights)
@@ -44,10 +43,10 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     print('data_tr: ', data_tr.head())
     y_train_close = np.array(data_tr.loc['2018-01-01':'2021-01-01',target_col_name][step_size:])  # 'Close_abs_change' added
-    y_test_close = np.array(data_tr.loc['2021-01-01':,target_col_name][step_size:]) #'Close_abs_change' added
+    y_test_close = np.array(data_tr.loc['2021-01-01':, target_col_name][step_size:]) #'Close_abs_change' added
 
-    preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss='mse') #y_test_close_change
-    preds_test, score_test = prediction(my_model, y_test_close, X_test, scaler, loss='mse')
+    preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss) #y_test_close_change
+    preds_test, score_test = prediction(my_model, y_test_close, X_test, scaler, loss)
 
     d_train = {'Close_actual': y_train_close, 'Close_prediction': preds_train} #y_test_close_change
     d_test = {'Close_actual': y_test_close, 'Close_prediction': preds_test} #y_test_close_change
