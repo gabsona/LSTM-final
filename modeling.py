@@ -80,6 +80,7 @@ def main_model(grid_model, problem_type):
 
     # print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: pd.DataFrame(layer1_weights.append(grid_model.layers[0].get_weights()[0])).to_csv(f'lw1_{ticker}.csv'))
     # print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: layer2_weights.append(grid_model.layers[1].get_weights()[0]))
+
     if problem_type == 'regression':
         model = KerasRegressor(build_fn=grid_model, verbose=1) #, callbacks=[print_weights1, print_weights2])
     if problem_type == 'classification':
@@ -92,7 +93,7 @@ def main_model(grid_model, problem_type):
     return model
 
 def best_model(X_train, y_train, model, cv):
-    grid_search = GridSearchCV(model, parameters, cv)
+    grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)

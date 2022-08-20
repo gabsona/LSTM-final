@@ -54,12 +54,12 @@ def data_transform(data, change):
 
         data = data.iloc[1:, 6:]
 
-    elif change == 'classification':
+    elif change == 'for classification':
         data = data.iloc[:, :4]
 
-        data['Close'] = (np.sign(data['Close'].diff()) + 1)/2
+        data['Close_binary'] = (np.sign(data['Close'].diff()) + 1)/2
         data.dropna(inplace=True)
-        data['Close'] = data['Close'].astype(int)
+        data['Close_binary'] = data['Close_binary'].astype(int)
 
     elif change == 'no change':
         data = data.iloc[:,:4]

@@ -11,7 +11,7 @@ from csv import DictWriter
 from datetime import datetime
 import tensorflow as tf
 
-def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='classification', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='binary_crossentropy' ):
+def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='for classification', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='binary_crossentropy' , problem_type = 'classification'):
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
     data_tr = data_transform(data, change = change)
@@ -25,7 +25,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     #gridsearch
     grid_model = build_model(X_train, loss= loss, optimizer='adam')
-    model = main_model(grid_model, change)
+    model = main_model(grid_model, problem_type)
     # print('layer1_weights', layer1_weights)
     # lw1_df = pd.DataFrame(layer1_weights)
     # lw2_df = pd.DataFrame(layer2_weights)
@@ -101,10 +101,10 @@ dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_tr
 df_acc = pd.DataFrame(dict_acc)
 # df_acc.to_csv('dict_'+ datetime.today().strftime('%d.%m')+'.csv', index = False)
 
-stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA']
-# stocks = ['NFLX'] # no PG
+stocks = ['NFLX'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)

@@ -26,19 +26,20 @@ def data_split(data, division, split_criteria, scale, step_size, target_col_name
         df_for_test = dataset_test
 
     df_for_training = np.array(df_for_training)
+    print('df_for_training', df_for_training)
     df_for_test = np.array(df_for_test)
 
     dataX = []
     dataY = []
     for i in range(step_size, len(df_for_training)):
-        dataX.append(df_for_training[i - step_size:i, 0:df_for_training.shape[1]])
+        dataX.append(df_for_training[i - step_size:i, 0:df_for_training.shape[1]-1]) #'-1' added for classification
         dataY.append(df_for_training[i, data.columns.get_loc(target_col_name)]) #3
         X_train, y_train = np.array(dataX), np.array(dataY)
 
     dataX = []
     dataY = []
     for i in range(step_size, len(df_for_test)):
-        dataX.append(df_for_test[i - step_size:i, 0:df_for_test.shape[1]])
+        dataX.append(df_for_test[i - step_size:i, 0:df_for_test.shape[1]-1]) #'-1' added for classification
         dataY.append(df_for_test[i, data.columns.get_loc(target_col_name)]) #3
         X_test, y_test = np.array(dataX), np.array(dataY)
     # print("X train y train")
