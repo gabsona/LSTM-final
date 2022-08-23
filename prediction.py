@@ -12,22 +12,24 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 
 
 
-def prediction(model, original, X, scaler, loss, problem_type):
-  print('X', X.shape, X.head())
-  prediction = model.predict(X)
-  print('pred1 ', prediction[:5])
-  prediction = prediction.reshape(prediction.shape[0],1)
-  print('pred2 ', prediction[:5])
+def prediction(model, original, X, scaler, loss):
+  print('X', X.shape)
+  print('original', original.shape)
+  pred = model.predict(X)
+  pred = np.where(pred > 0.5, 1, 0)
+  print('pred1 ', pred[:5])
+  # pred = prediction.reshape(prediction.shape[0],1)
+  # print('pred2 ', prediction[:5])
   # pred = scaler.inverse_transform(prediction)
   # print('pred3 ', pred)
   # pred = np.reshape(pred, (len(prediction),))# X_test.shape[2]))
   # print(pred.shape)
   # print('pred4 ', pred)
-  prediction_copies_array = np.repeat(prediction, X.shape[2], axis=-1) #change this one
-  print('pred3 ', prediction_copies_array[:5])
-  # print('pred3.shape ', prediction_copies_array.shape)
-  pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X.shape[2])))[:,3]
-  print('pred4', pred[:5], pred.shape)
+  # prediction_copies_array = np.repeat(prediction, X.shape[2], axis=-1) #change this one
+  # print('pred3 ', prediction_copies_array[:5])
+
+  # pred = scaler.inverse_transform(np.reshape(prediction_copies_array,(len(prediction), X.shape[2])))[:,3]
+  # print('pred4', pred[:5], pred.shape)
   print('original', original.shape)
   # pred = np.reshape(pred, (len(prediction), X_test.shape[2]))[:, 3]
   if loss == 'mse':
@@ -36,7 +38,7 @@ def prediction(model, original, X, scaler, loss, problem_type):
     testScore = mean_absolute_percentage_error(original, pred)
   if loss == 'binary_crossentropy':
     testScore = accuracy_score(original, pred)
-
+  print('testScore', testScore)
   return pred, testScore
 
 
@@ -62,9 +64,15 @@ def classification(data, data_main, df_type_, change):
         if df_type_ == 'test':
             data['Close_actual'] = data_main.loc['2021-01-01':, 'Close'][30:]  # '2021-01-01':
         # data['Close_prediction'] = dataset_test['Close'].shift(1) + data.Close_prediction_change
+
+    elif change == 'classification':
+        data.rename(columns = {'Close_actual': 'Actual_change', 'Close_prediction':'Pred_change'}, inplace = True)
+
     classification_accuracy = len(data[(data.Actual_change == data.Pred_change)]) / len(data)
     precision = precision_score(data.Actual_change, data.Pred_change)
+    print('precision', precision)
     recall = recall_score(data.Actual_change, data.Pred_change)
+    print('recall', recall)
     f1 = f1_score(data.Actual_change, data.Pred_change)
     acc = accuracy_score(data.Actual_change, data.Pred_change)
 

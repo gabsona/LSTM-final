@@ -27,10 +27,10 @@ from tensorflow.keras import initializers
 #               'epochs': [50],
 #               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
-parameters = {'batch_size': [32],
-              'epochs': [30],
-              'optimizer__learning_rate': [0.001]}
-# #               # 'model__activation':'relu'}
+parameters = {'batch_size':[32],
+              'epochs': [50],
+              'optimizer__learning_rate': [1E-5]}
+# #               # 'model__': [activation':'relu'}
 
 # parameters = {'batch_size': [16 ,32]}
 
@@ -45,7 +45,7 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     grid_model.add(LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer)) # (30,4)
     grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
 
-    # 2nd LSTM layer
+    # #2nd LSTM layer
     # grid_model.add(LSTM(50, return_sequences=True))
     # grid_model.add(Dropout(0.2))
 
@@ -54,12 +54,11 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     # grid_model.add(Dropout(0.5))
 
     # 4th LSTM layer, we wont use return sequence true in last layers as we dont want to previous output
-    grid_model.add(LSTM(units=50, kernel_initializer='glorot_uniform'))
+    grid_model.add(LSTM(units=100, kernel_initializer='glorot_uniform'))
     grid_model.add(Dropout(0.5))
-
+    grid_model.add(Dense(25))
     # Output layer , we wont pass any activation as its continous value model
-    grid_model.add(Dense(1))
-
+    grid_model.add(Dense(1, activation = 'sigmoid'))
     grid_model.compile(loss = loss,optimizer = optimizer,metrics=['accuracy'])
     print('grid_model:', grid_model)
 

@@ -48,8 +48,8 @@ def data_split(data, division, split_criteria, scale, step_size, target_col_name
     # print(X_train[1])
     # print(y_train[1])
     #
-    # print(X_test[0])
-    # print(y_test[0])
+    print(X_test[0])
+    print(y_test[0])
     # print(X_test[1])
     # print(y_test[1])
 

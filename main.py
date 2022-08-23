@@ -42,7 +42,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     # print(y_pred)
 
     print('data_tr: ', data_tr.head())
-    y_train_close = np.array(data_tr.loc['2018-01-01':'2021-01-01',target_col_name][step_size:])  # 'Close_abs_change' added
+    y_train_close = np.array(data_tr.loc['2018-01-01':'2021-01-01', target_col_name][step_size:])  # 'Close_abs_change' added
     y_test_close = np.array(data_tr.loc['2021-01-01':, target_col_name][step_size:]) #'Close_abs_change' added
 
     preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss) #y_test_close_change
@@ -51,26 +51,29 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     d_train = {'Close_actual': y_train_close, 'Close_prediction': preds_train} #y_test_close_change
     d_test = {'Close_actual': y_test_close, 'Close_prediction': preds_test} #y_test_close_change
     # d = {'Close_actual_change': y_train_close_change, 'Close_prediction_change': preds}
+    print('d_train', d_train)
+    print('d_test', d_test)
     data_pred_train = pd.DataFrame(data=d_train, index=data[step_size:len(preds_train) + step_size].index) #data[-len(preds):].index
     data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds_test):].index)
     # print('data_pred_train:',data_pred_train)
     # print('data_pred_test:', data_pred_test)
     # print('data_pred', data_pred.head())
     # print('data_pred', data_pred.tail())
-    df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change='no_change')
-    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, df_type_='test', change='no_change')
+    df_preds_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train = classification(data_pred_train, data,df_type_='train', change='classification')
+    df_preds_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = classification(data_pred_test, data, df_type_='test', change='classification')
     print('df_preds_train', df_preds_train)
+    print('df_preds_test', df_preds_test)
     df_preds_abs_train = upd_df(df_preds_train, change = change)
     df_preds_abs_test = upd_df(df_preds_test, change = change)
-
+    print('df_preds_abs', df_preds_abs_test)
     # summarize results
     print("Best Mean cross-validated training accuracy score: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
 
-    plot_results(ticker, df_preds_abs_train, change=change, df_type='train')
-    plot_results(ticker, df_preds_abs_test, change=change, df_type='test')
+    # plot_results(ticker, df_preds_train, change=change, df_type='train')
+    # plot_results(ticker, df_preds_test, change=change, df_type='test')
     plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
     best_params = grid_result.best_params_
@@ -85,7 +88,7 @@ def makemydir(df, stock, folder_name, df_type = 'test'):
     if not os.path.exists(dir):
         os.makedirs(dir)
     # os.chdir(dir)
-    df.to_csv(dir + f'\\df_{stock}_{df_type}_close_OHL.csv')
+    df.to_csv(dir + f'\\df_{stock}_{df_type}_classification.csv')
 
 
 acc_list = [] # add training accuracy
@@ -104,7 +107,7 @@ df_acc = pd.DataFrame(dict_acc)
 # stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 # stocks = ['JNJ', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO']
 # stocks = ['CVX', 'MA']
-stocks = ['NFLX'] # no PG
+stocks = ['V'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)
@@ -117,7 +120,7 @@ for stock in stocks:
     dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
     # Open your CSV file in append mode
     # Create a file object for this file
-    with open('dict_close_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
+    with open('dict_clf_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
 
         # fieldnames = ['Stock', 'Accuracy', 'Precision', 'Recall', 'F1', 'Acc', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
         fieldnames = ['Stock', 'Accuracy_train', 'Accuracy_test','Precision_train', 'Precision_test','Recall_train','Recall_test', 'F1_train', 'F1_test', 'Acc_train', 'Acc_test','Best_score', 'Score_train', 'Score_test','Best_parameters']
