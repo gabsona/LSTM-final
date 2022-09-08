@@ -20,5 +20,5 @@ Final output includes
 
 ## Experiments done
 
-1. In training part _KerasClassifier_ was used instead of _KerasRegressor_ for solving classification problem (finding stock change directions). "[Results]" "(https://github.com/gabsona/LSTM-final/blob/main/dict_clf_01.09.csv)"
+1. In training part _KerasClassifier_ was used instead of _KerasRegressor_ for solving classification problem (finding stock change directions). [Results](https://github.com/gabsona/LSTM-final/blob/main/dict_clf_01.09.csv)
 2. 
