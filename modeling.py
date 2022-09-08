@@ -8,8 +8,9 @@ from sklearn.metrics import accuracy_score, mean_squared_error, mean_absolute_pe
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM
+from tensorflow.keras.models import Model, Sequential, load_model
+from tensorflow.keras.layers import Dense, Dropout, LSTM, Input
+from tensorflow.keras import optimizers
 from scikeras.wrappers import KerasRegressor, KerasClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import keras_tuner as kt
@@ -22,22 +23,37 @@ from keras_tuner.tuners import RandomSearch, BayesianOptimization
 from tensorflow.keras import initializers
 
 
+
 # parameters = {'batch_size': [32 ,64 ,128],
-#               # 'batch_size': [32],
 #               'epochs': [50],
 #               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
 parameters = {'batch_size':[32],
-              'epochs': [50],
+              'epochs': [10],
               'optimizer__learning_rate': [1E-5]}
 # #               # 'model__': [activation':'relu'}
 
-# parameters = {'batch_size': [16 ,32]}
 
-
+# def makeLSTM(X_train):
+#     inputs = Input(shape=(X_train.shape[1], X_train.shape[2]))
+#     x = LSTM(25, return_sequences=False)(inputs)
+#     x = Dropout(0.1)(x)
+#     outputs = Dense(1)(x)
+#     model = Model(inputs=inputs, outputs=outputs)
+#     model.compile(loss='categorical_crossentropy', optimizer=optimizers.RMSprop(), metrics=['accuracy'])
+#     model.summary()
+#
+#     return model
 
 def build_model(X_train, loss, optimizer): #changed the layer of relu
+    """
+    Args:
+        loss: loss function for NN
+        optimizer: optimizer for NN
 
+    Returns:
+         grid_model: compiled model
+    """
     grid_model = Sequential()
     # 1st LSTM layer
     initializer = tf.keras.initializers.GlorotUniform()
@@ -59,53 +75,48 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     grid_model.add(Dense(25))
     # Output layer , we wont pass any activation as its continous value model
     grid_model.add(Dense(1, activation = 'sigmoid'))
-    grid_model.compile(loss = loss,optimizer = optimizer,metrics=['accuracy'])
+    grid_model.compile(loss = loss, optimizer = optimizer, metrics=['accuracy'])
     print('grid_model:', grid_model)
 
     return grid_model
 
 
 def main_model(grid_model, problem_type):
-    # for layer in model.layers:
-    #     weights = layer.get_weights()
-    # for layer in model.layers: print(layer.get_config(), layer.get_weights())
-    print('grid model layers', grid_model.layers)
-    # print_weights = LambdaCallback(on_epoch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()))
-    # print_weights = LambdaCallback(on_batch_end=lambda batch, logs: (for layer in grid_model.layers print('WEIGHTS:',layer.get_weights())))
-    layer1_weights = []
-    layer2_weights = []
-    # print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 1:', grid_model.layers[0].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
-    # print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: print('WEIGHTS 2:', grid_model.layers[2].get_weights()[0], grid_model.layers[0].get_weights()[0].shape))
+    """
+    Creates the model depending on the problem type
+    Args:
+      grid_model: already compiled model
+      problem_type: classification or regression
 
-    # print_weights1 = LambdaCallback(on_batch_end=lambda batch, logs: pd.DataFrame(layer1_weights.append(grid_model.layers[0].get_weights()[0])).to_csv(f'lw1_{ticker}.csv'))
-    # print_weights2 = LambdaCallback(on_batch_end=lambda batch, logs: layer2_weights.append(grid_model.layers[1].get_weights()[0]))
+    Returns:
+        model: created model
+    """
 
     if problem_type == 'regression':
         model = KerasRegressor(build_fn=grid_model, verbose=1) #, callbacks=[print_weights1, print_weights2])
     if problem_type == 'classification':
         model = KerasClassifier(build_fn=grid_model, verbose=1) #, callbacks=[print_weights1, print_weights2])
 
-    # lw1_df = pd.DataFrame(layer1_weights)
-    # lw2_df = pd.DataFrame(layer2_weights)
-    # lw1_df.to_csv(f'lw1_{ticker}.csv')
-    # lw2_df.to_csv(f'lw2_{ticker}.csv')
     return model
 
 def best_model(X_train, y_train, model, cv):
+    """
+    Implements cross-validation with given parameters
+
+    Args:
+        X_train, y_train: data on which model will be fitted
+        cv: cross-validation size
+
+    Returns:
+        my_model: model with best parameters
+        grid_result: fitted gridsearchcv
+    """
     grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
     my_model = grid_result.best_estimator_
-    # weight = my_model.build_fn.get_weights()
-    # np.savetxt('weight.csv', weight, fmt='%s', delimiter=',')
-
-    # print('params:', grid_result.best_params_)
-    # print('grid_result:', grid_result)
-    # print('my_model:', my_model)
-    # to_be_saved_model = my_model.fit(X_train, y_train, callbacks=None)
-    # print('to_be_saved_model',to_be_saved_model)
 
     # saving the model
     # cwd = os.getcwd()
@@ -116,3 +127,13 @@ def best_model(X_train, y_train, model, cv):
 
     print('Keys: ', my_model.history_.keys())
     return my_model, grid_result
+
+def model_fit(X_train, y_train, model):
+    """
+    Function needed in case model trained without cross validation
+
+    """
+
+    model.fit(X_train, y_train, epochs=50, validation_split=0.2, batch_size=64)
+
+    return model

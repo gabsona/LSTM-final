@@ -10,13 +10,31 @@ import pandas as pd
 
 
 def download_data(ticker, start_date, end_date, interval = '1d'):
+    """
+    Downloads market data from yahoo finance
+    Args:
+         ticker: ticker of the stock
+         start_date: starting date of the data
+         end_date: ending date of the data
+         interval: specifies data interval, other inputs can be 1m,5m,15m,30m,60m,1h,1d,1wk,1mo
 
-  data = yf.download(ticker, start = start_date, end = end_date, interval = interval)
+    Returns:
+         data: downloaded data with specified requirements
+    """
 
-  return data
+    data = yf.download(ticker, start = start_date, end = end_date, interval = interval)
+
+    return data
 
 
 def data_transform(data, change):
+    """
+    Transforms input features of data if needed
+    Args:
+        change: change type for input variables
+    Returns:
+        data: transformed data
+    """
     if change == 'absolute':
 
         data['Open_abs_change'] = data.Open.diff()
@@ -71,9 +89,3 @@ def data_transform(data, change):
     print('Data shape: ', data.shape)
     print('Data: ', data.head())
     return data
-
-# data = download_data('NFLX', '2018-01-01', '2022-01-01', '1d')
-# # data = all_indicators(data) # adds TIs
-# data.dropna(inplace = True)
-# data_tr = data_transform(data, change='absolute')
-# print(data_tr)
