@@ -18,5 +18,5 @@ Final output includes
 - loss plot, close price prediction plots
 - csv files with predictions for each day
 
-##Experiments done
+## Experiments done
 
