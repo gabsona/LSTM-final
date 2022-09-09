@@ -33,7 +33,7 @@ Final output includes
 - only close price is used as an input
 - open high low close are used as an input
 - prediction done with price absolute or percentage changes as an input to predict absolute/percentage close change
-- open high low prices are kept the same while instead of close price absolut change of close price is used
+- open high low prices are kept the same while instead of close price absolute change of close price is used
 - input is hourly data instead of daily
 - MAPE is used as a loss metric in addition to MSE
 - technical indicators are added
@@ -42,4 +42,6 @@ Final output includes
 - different optimizers are used
 - experiment with learning rates
 - classification is done on the results of regression
+- classification is done using KerasClassifier
+- simple NN is used instead of GridSearchCV
 - loss is calculated after each batch not epoch
