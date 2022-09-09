@@ -45,3 +45,4 @@ Final output includes
 - classification is done using KerasClassifier
 - simple NN is used instead of GridSearchCV
 - loss is calculated after each batch not epoch
+- weight initialization is added (improved results)
