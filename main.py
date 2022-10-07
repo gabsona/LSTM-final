@@ -73,9 +73,9 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     # stds = grid_result.cv_results_['std_test_score']
     # params = grid_result.cv_results_['params']
 
-    # plot_results(ticker, df_preds_train, change=change, df_type='train')
-    # plot_results(ticker, df_preds_test, change=change, df_type='test')
-    # plot_loss(my_model, ticker)
+    plot_results(ticker, df_preds_train, change=change, df_type='train')
+    plot_results(ticker, df_preds_test, change=change, df_type='test')
+    plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
     best_params = grid_result.best_params_
 
@@ -94,23 +94,12 @@ def makemydir(df, stock, folder_name, df_type = 'test'):
     df.to_csv(dir + f'\\df_{stock}_{df_type}.csv')
 
 
-acc_list = [] # add training accuracy
-precision = []
-recall = []
-f1 = []
-acc = []
-scores = []
-best_params_ = []
-mse_train_ = []
-mse_test_ = []
-# dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_train': [], 'Precision_test': [],'Recall_train': [],'Recall_test': [], 'F1_train': [], 'F1_test': [], 'Acc_train': [], 'Acc_test': [],'Best_score': [], 'Score_train':[], 'Score_test':[],'Best_parameters': []}
-
 dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_train': [], 'Precision_test': [],'Recall_train': [],'Recall_test': [], 'F1_train': [], 'F1_test': [], 'Score_train':[], 'Score_test':[]}
 df_acc = pd.DataFrame(dict_acc)
 
-stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 
-# stocks = ['V'] # no PG
+stocks = ['V'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)
@@ -123,18 +112,17 @@ for stock in stocks:
     # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
     makemydir(df_preds_abs_test, stock, "Close unchanged", df_type = 'test')
     # dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
-    dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test}
 
     # Open your CSV file in append mode
     # Create a file object for this file
-    with open('dict_clf_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
+    field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test']
+    dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test}
 
-        # fieldnames = ['Stock', 'Accuracy', 'Precision', 'Recall', 'F1', 'Acc', 'Score', 'MSE train', 'MSE test', 'Best Parameters']
-        # fieldnames = ['Stock', 'Accuracy_train', 'Accuracy_test','Precision_train', 'Precision_test','Recall_train','Recall_test', 'F1_train', 'F1_test', 'Acc_train', 'Acc_test','Best_score', 'Score_train', 'Score_test','Best_parameters']
-        fieldnames = ['Stock', 'Accuracy_train', 'Accuracy_test','Precision_train', 'Precision_test','Recall_train','Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test']
+    with open('dict_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
 
-        dictwriter_object = DictWriter(f_object, fieldnames = dict_append)
-
+        dictwriter_object = DictWriter(f_object, fieldnames = field_names)
+        
+        dictwriter_object.writeheader()
         # Passing the dictionary as an argument to the Writerow()
         dictwriter_object.writerow(dict_append)
 
