@@ -10,8 +10,12 @@ import os
 from csv import DictWriter
 from datetime import datetime
 import tensorflow as tf
+import os.path
 
-def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='absolute', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='mse' , problem_type = 'regression'):
+
+
+
+def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='mse' , problem_type = 'regression'):
 
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
@@ -75,6 +79,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     plot_results(ticker, df_preds_train, change=change, df_type='train')
     plot_results(ticker, df_preds_test, change=change, df_type='test')
+    print('print loss')
     plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
     best_params = grid_result.best_params_
@@ -85,7 +90,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     # return df_preds, df_preds_abs, classification_accuracy, precision, recall, f1, acc, best_score, best_params, mse_train, mse_test
 
-def makemydir(df, stock, folder_name, df_type = 'test'):
+def makemydir(df, stock, folder_name, df_type):
     cwd = os.getcwd()
     dir = os.path.join(cwd, folder_name + datetime.today().strftime('%d.%m'))
     if not os.path.exists(dir):
@@ -97,9 +102,9 @@ def makemydir(df, stock, folder_name, df_type = 'test'):
 dict_acc = {'Stock': [], 'Accuracy_train': [], 'Accuracy_test': [],'Precision_train': [], 'Precision_test': [],'Recall_train': [],'Recall_test': [], 'F1_train': [], 'F1_test': [], 'Score_train':[], 'Score_test':[]}
 df_acc = pd.DataFrame(dict_acc)
 
-# stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
+stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 
-stocks = ['V'] # no PG
+# stocks = ['V'] # no PG
 
 for stock in stocks:
     print('stock: ', stock)
@@ -108,21 +113,26 @@ for stock in stocks:
 
     # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
     # makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_train, stock, "Close unchanged", df_type = 'train')
+    makemydir(df_preds_abs_train, stock, "Unchanged prices ", df_type = 'train')
     # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_test, stock, "Close unchanged", df_type = 'test')
+    makemydir(df_preds_abs_test, stock, "Unchanged prices ", df_type = 'test')
     # dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
 
     # Open your CSV file in append mode
     # Create a file object for this file
-    field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test']
-    dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test}
+    field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Best_score', 'Best_params']
+    dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test, 'Best_score': best_score, 'Best_params':best_params}
 
-    with open('dict_'+ datetime.today().strftime('%d.%m')+'.csv', 'a', newline='') as f_object:
-
+    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC.csv', 'a', newline='') as f_object:
         dictwriter_object = DictWriter(f_object, fieldnames = field_names)
-        
-        dictwriter_object.writeheader()
+
+        file_exists = os.path.isfile('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_exp.csv')
+
+        # if not file_exists:
+        #     dictwriter_object.writeheader()  # file doesn't exist yet, write a header
+
+        dictwriter_object.writeheader()  # file doesn't exist yet, write a header
+
         # Passing the dictionary as an argument to the Writerow()
         dictwriter_object.writerow(dict_append)
 

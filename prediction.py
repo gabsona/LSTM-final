@@ -71,7 +71,7 @@ def classification(data, data_main, df_type_, change):
         data: dataset with classification results (0,1)
 
     """
-    if change == 'no_change':
+    if change == 'no change':
 
         data['Actual_change'] = np.where(data['Close_actual'] < data['Close_actual'].shift(1), 0, 1)
         data['Pred_change'] = np.where(data['Close_actual'] > data['Close_prediction'].shift(-1), 0, 1)

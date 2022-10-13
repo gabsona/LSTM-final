@@ -23,10 +23,10 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
     if change == 'absolute':
         plt.figure(figsize=(12, 6))
         plt.plot(pd.concat([df['Close_actual'], df['Added_changes']], axis=1))
-        plt.title('Close Absolute Change Prediction (only adding changes)')
+        plt.title('Close Prediction (OHLC unchanged)')
         Path(path).mkdir(parents=True, exist_ok=True)
         # plt.savefig(cwd + f'\\plots_{date}\\absolute_change_{ticker}.png')
-        plt.savefig(path + f'\\absolute_change_{ticker}_{df_type}.png')
+        plt.savefig(path + f'\\close_pred_{ticker}_{df_type}.png')
         plt.close()
 
     else:
@@ -34,14 +34,14 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
 
 def plot_loss(my_model, ticker, date = datetime.today().strftime('%d.%m')):
     plt.figure(figsize=(10, 6))
-    print(my_model.history_)
+    print('history', my_model.history_)
     # print(my_model.history_.history)
-    plt.plot(my_model.history_['val_loss'], color='red') #history_
-    # plt.plot(my_model.history_['mean_absolute_error'], color='green')
+    plt.plot(my_model.history_['loss'], color='red') #history_
+    plt.plot(my_model.history_['mean_squared_error'], color='green')
     # plt.plot(my_model.history_['mean_absolute_percentage_error'], color='purple')
     # plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
     path = cwd + f'\\loss_plot_{date}'
     Path(path).mkdir(parents=True, exist_ok=True)
-    plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
-    # plt.savefig(path + f'\\plot_loss_{ticker}.png')
+    # plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
+    plt.savefig(path + f'\\plot_loss_{ticker}.png')

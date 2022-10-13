@@ -31,7 +31,7 @@ from tensorflow.keras import initializers
 parameters = {'batch_size':[32],
               'epochs': [10],
               'optimizer__learning_rate': [1E-5]}
-# #               # 'model__': [activation':'relu'}
+# # #               # 'model__': [activation':'relu'}
 
 
 # def makeLSTM(X_train):
@@ -75,7 +75,7 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     grid_model.add(Dense(25))
     # Output layer , we wont pass any activation as its continous value model
     grid_model.add(Dense(1, activation = 'sigmoid'))
-    grid_model.compile(loss = loss, optimizer = optimizer, metrics=['accuracy'])
+    grid_model.compile(loss = loss, optimizer = optimizer, metrics=['mse'])
     print('grid_model:', grid_model)
 
     return grid_model
