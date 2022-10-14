@@ -15,21 +15,22 @@ import os.path
 
 
 
-def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss='mse' , problem_type = 'regression'):
+def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss = 'mse', problem_type = 'regression'):
 
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
     data_tr = data_transform(data, change = change)
     # data_tr = data['Close'] #taking only close values
 
-    target_col_name = data_tr.columns[-1]
+    target_col_name = data_tr.columns[-2] # changes from -1
     print('Target column: ', target_col_name)
 
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size, target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
     #gridsearch
-    grid_model = build_model(X_train, loss= loss, optimizer='adam')
+
+    grid_model = build_model(X_train, loss, optimizer='adam')
     model = main_model(grid_model, problem_type)
     # print('layer1_weights', layer1_weights)
     # lw1_df = pd.DataFrame(layer1_weights)
@@ -79,6 +80,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     plot_results(ticker, df_preds_train, change=change, df_type='train')
     plot_results(ticker, df_preds_test, change=change, df_type='test')
+    plot_train_val(grid_result, ticker)
     print('print loss')
     plot_loss(my_model, ticker)
     best_score = grid_result.best_score_
@@ -123,10 +125,10 @@ for stock in stocks:
     field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Best_score', 'Best_params']
     dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test, 'Best_score': best_score, 'Best_params':best_params}
 
-    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC.csv', 'a', newline='') as f_object:
+    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA.csv', 'a', newline='') as f_object:
         dictwriter_object = DictWriter(f_object, fieldnames = field_names)
 
-        file_exists = os.path.isfile('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_exp.csv')
+        # file_exists = os.path.isfile('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA.csv')
 
         # if not file_exists:
         #     dictwriter_object.writeheader()  # file doesn't exist yet, write a header

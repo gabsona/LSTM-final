@@ -13,6 +13,8 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM, Input
 from tensorflow.keras import optimizers
 from scikeras.wrappers import KerasRegressor, KerasClassifier
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.metrics import make_scorer
+
 import keras_tuner as kt
 import os
 import joblib
@@ -28,10 +30,14 @@ from tensorflow.keras import initializers
 #               'epochs': [50],
 #               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
 
-parameters = {'batch_size':[32],
-              'epochs': [10],
-              'optimizer__learning_rate': [1E-5]}
-# # #               # 'model__': [activation':'relu'}
+parameters = {'batch_size': [32 ,64 ,128],
+              'epochs': [50],
+              'optimizer__learning_rate': [2, 1, 0.2, 1E-1, 1E-5]}
+
+# parameters = {'batch_size':[32],
+#               'epochs': [10],
+#               'optimizer__learning_rate': [1E-5]}
+# # # # #               # 'model__': [activation':'relu'}
 
 
 # def makeLSTM(X_train):
@@ -111,11 +117,14 @@ def best_model(X_train, y_train, model, cv):
         my_model: model with best parameters
         grid_result: fitted gridsearchcv
     """
-    grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv)
+    grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv, return_train_score=True)
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
+    print('grid search results', grid_result.cv_results_)
+
+
     my_model = grid_result.best_estimator_
 
     # saving the model

@@ -53,13 +53,13 @@ def data_split(data, division, split_criteria, scale, step_size, target_col_name
         dataY.append(df_for_test[i, data.columns.get_loc(target_col_name)]) #3
         X_test, y_test = np.array(dataX), np.array(dataY)
     # print("X train y train")
-    print(X_train[0])
-    print(y_train[0])
+    # print(X_train[0])
+    # print(y_train[0])
     # print(X_train[1])
     # print(y_train[1])
 
-    print(X_test[0])
-    print(y_test[0])
+    # print(X_test[0])
+    # print(y_test[0])
     # print(X_test[1])
     # print(y_test[1])
 

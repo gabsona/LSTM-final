@@ -81,6 +81,8 @@ def data_transform(data, change):
 
     elif change == 'no change':
         data = data.iloc[:,:4]
+        # data['High-Low'] = data.High - data.Low
+        data['SMA14'] = data['Close'].rolling(14).mean()
 
     else:
         raise Exception('Wrong input')
