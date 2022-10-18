@@ -49,13 +49,13 @@ def plot_loss(my_model, ticker, date = datetime.today().strftime('%d.%m')):
     plt.close()
 
 def plot_train_val(grid_result, ticker, date = datetime.today().strftime('%d.%m')):
-    test_scores = grid_result.cv_results_['mean_test_score']
-    train_scores = grid_result.cv_results_['mean_train_score']
+    test_scores = -grid_result.cv_results_['mean_test_score']
+    train_scores = -grid_result.cv_results_['mean_train_score']
     plt.plot(test_scores, label='test')
     plt.plot(train_scores, label='train')
     plt.legend(loc='best')
     cwd = os.getcwd()
-    path = cwd + f'\\train_val_plot_with_SMA{date}'
+    path = cwd + f'\\train_val_plot_with_SMA_{date}'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
     plt.savefig(path + f'\\plot_loss_{ticker}.png')

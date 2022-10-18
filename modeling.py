@@ -117,12 +117,12 @@ def best_model(X_train, y_train, model, cv):
         my_model: model with best parameters
         grid_result: fitted gridsearchcv
     """
-    grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = cv, return_train_score=True)
+    grid_search = GridSearchCV(estimator = model, param_grid = parameters, cv = 5, return_train_score=True, scoring='neg_mean_squared_error')
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
-    print('grid search results', grid_result.cv_results_)
+    print('grid search results', grid_result.cv_results_
 
 
     my_model = grid_result.best_estimator_
