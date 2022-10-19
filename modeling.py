@@ -122,10 +122,11 @@ def best_model(X_train, y_train, model, cv):
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
     grid_result = grid_search.fit(X_train, y_train)
-    print('grid search results', grid_result.cv_results_
+    print('grid search results', grid_result.cv_results_)
 
 
     my_model = grid_result.best_estimator_
+    print('my model: ', my_model)
 
     # saving the model
     # cwd = os.getcwd()
