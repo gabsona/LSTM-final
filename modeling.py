@@ -26,13 +26,13 @@ from tensorflow.keras import initializers
 
 
 
-# parameters = {'batch_size': [32 ,64 ,128],
-#               'epochs': [50],
-#               'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
-
 parameters = {'batch_size': [32 ,64 ,128],
               'epochs': [50],
-              'optimizer__learning_rate': [2, 1, 0.2, 1E-1, 1E-5]}
+              'optimizer__learning_rate': [2, 1, 0.4, 0.2, 1E-1, 1E-3, 1E-5]}
+
+# parameters = {'batch_size': [32 ,64 ,128],
+#               'epochs': [50],
+#               'optimizer__learning_rate': [2, 1, 0.2, 1E-1, 1E-5]}
 
 # parameters = {'batch_size':[32],
 #               'epochs': [10],
@@ -105,7 +105,7 @@ def main_model(grid_model, problem_type):
 
     return model
 
-def best_model(X_train, y_train, model, cv):
+def best_model(X_train, y_train,X_test,y_test,  model, cv):
     """
     Implements cross-validation with given parameters
 
@@ -121,7 +121,8 @@ def best_model(X_train, y_train, model, cv):
 
     # with tf.device('/gpu:0'):
     #     model.fit(X_train, y_train)
-    grid_result = grid_search.fit(X_train, y_train)
+    grid_result = grid_search.fit(X_train, y_train,validation_data=(X_test,y_test))
+    print('grid search', grid_result)
     print('grid search results', grid_result.cv_results_)
 
 
@@ -138,12 +139,12 @@ def best_model(X_train, y_train, model, cv):
     print('Keys: ', my_model.history_.keys())
     return my_model, grid_result
 
-def model_fit(X_train, y_train, model):
-    """
-    Function needed in case model trained without cross validation
-
-    """
-
-    model.fit(X_train, y_train, epochs=50, validation_split=0.2, batch_size=64)
-
-    return model
+# def model_fit(X_train, y_train, X_test, y_test, model):
+#     """
+#     Function needed in case model trained without cross validation
+#
+#     """
+#
+#     model.fit(X_train, y_train, epochs=50,validation_data=(X_test,y_test), validation_split=0.2, batch_size=64)
+#
+#     return model

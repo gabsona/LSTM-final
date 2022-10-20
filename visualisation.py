@@ -37,8 +37,9 @@ def plot_loss(my_model, ticker, date = datetime.today().strftime('%d.%m')):
     plt.figure(figsize=(10, 6))
     print('history', my_model.history_)
     # print(my_model.history_.history)
-    plt.plot(my_model.history_['loss'], color='red') #history_
+    # plt.plot(my_model.history_['loss'], color='red') #history_
     plt.plot(my_model.history_['mean_squared_error'], color='green')
+    plt.plot(my_model.history_['val_mse'], color='purple')
     # plt.plot(my_model.history_['mean_absolute_percentage_error'], color='purple')
     # plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
