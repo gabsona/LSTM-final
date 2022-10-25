@@ -14,7 +14,7 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
     plt.ylabel('Price')
     plt.legend()
     cwd = os.getcwd()
-    path = cwd + f'\\plots_{date}'
+    path = cwd + f'\\plots_{date}+init'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\plots_{date}\\plot_{ticker}_daily.png')
     plt.savefig(path + f'\\plot_{ticker}_{df_type}.png')
@@ -33,17 +33,18 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
     else:
         pass
 
-def plot_loss(my_model, ticker, date = datetime.today().strftime('%d.%m')):
+def plot_loss(history, my_model, ticker, date = datetime.today().strftime('%d.%m')):
     plt.figure(figsize=(10, 6))
-    print('history', my_model.history_)
+    print('history', history.history.keys())
     # print(my_model.history_.history)
     # plt.plot(my_model.history_['loss'], color='red') #history_
-    plt.plot(my_model.history_['mean_squared_error'], color='green')
-    plt.plot(my_model.history_['val_mse'], color='purple')
+    plt.plot(history.history['mean_squared_error'], color='green', label='train')
+    plt.plot(history.history['val_mean_squared_error'], color='purple', label='test')
     # plt.plot(my_model.history_['mean_absolute_percentage_error'], color='purple')
     # plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
-    path = cwd + f'\\loss_plot_with_SMA_{date}'
+    print('cwd', cwd)
+    path = cwd + f'\\loss_plot_with_SMA+init_{date}'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
     plt.savefig(path + f'\\plot_loss_{ticker}.png')

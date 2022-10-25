@@ -29,16 +29,14 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     #gridsearch
 
-    grid_model = build_model(X_train, loss, optimizer='adam')
-    model = main_model(grid_model, problem_type)
-    # print('layer1_weights', layer1_weights)
-    # lw1_df = pd.DataFrame(layer1_weights)
-    # lw2_df = pd.DataFrame(layer2_weights)
-    # lw1_df.to_csv(f'lw1_{ticker}.csv')
-    # lw2_df.to_csv(f'lw2_{ticker}.csv')
-    my_model, grid_result = best_model(X_train, y_train,X_test,y_test, model, cv=5)
-    grid_mean_train = grid_result.cv_results_['mean_train_score']
-    grid_mean_test = grid_result.cv_results_['mean_test_score']
+    # grid_model = build_model(X_train, loss, optimizer='adam')
+    # model = main_model(grid_model, problem_type)
+
+    # my_model, grid_result = best_model(X_train, y_train,X_test,y_test, model, cv=5)
+
+    my_model, history = model_building(X_train, y_train, X_test, y_test)
+    # grid_mean_train = grid_result.cv_results_['mean_train_score']
+    # grid_mean_test = grid_result.cv_results_['mean_test_score']
 
 
     # #CuDNNLSTM
@@ -82,15 +80,15 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     plot_results(ticker, df_preds_train, change=change, df_type='train')
     plot_results(ticker, df_preds_test, change=change, df_type='test')
-    plot_train_val(grid_result, ticker)
+    # plot_train_val(grid_result, ticker)
     print('print loss')
-    plot_loss(my_model, ticker)
-    best_score = grid_result.best_score_
-    best_params = grid_result.best_params_
+    plot_loss(history, my_model, ticker)
+    # best_score = grid_result.best_score_
+    # best_params = grid_result.best_params_
+    return score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test
 
-    return best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, grid_mean_train, grid_mean_test
+    # return best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, grid_mean_train, grid_mean_test
 
-    # return score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test
 
     # return df_preds, df_preds_abs, classification_accuracy, precision, recall, f1, acc, best_score, best_params, mse_train, mse_test
 
@@ -113,21 +111,21 @@ stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', '
 for stock in stocks:
     print('stock: ', stock)
     # best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = final_pred(stock)
-    best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, grid_mean_train, grid_mean_test = final_pred(stock)
+    score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test = final_pred(stock)
 
     # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
     # makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_train, stock, "Unchanged prices with SMA", df_type = 'train')
+    makemydir(df_preds_abs_train, stock, "Unchanged prices with SMA+init", df_type = 'train')
     # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_test, stock, "Unchanged prices with SMA ", df_type = 'test')
+    makemydir(df_preds_abs_test, stock, "Unchanged prices with SMA+init ", df_type = 'test')
     # dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
 
     # Open your CSV file in append mode
     # Create a file object for this file
-    field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Best_score', 'Best_params', 'grid_mean_train', 'grid_mean_test']
-    dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test, 'Best_score': best_score, 'Best_params':best_params, 'grid_mean_train':grid_mean_train, 'grid_mean_test':grid_mean_train}
+    field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test']
+    dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test}
 
-    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA.csv', 'a', newline='') as f_object:
+    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA+init.csv', 'a', newline='') as f_object:
         dictwriter_object = DictWriter(f_object, fieldnames = field_names)
 
         # file_exists = os.path.isfile('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA.csv')

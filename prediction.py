@@ -29,8 +29,8 @@ def prediction(model, actual_values, X, scaler, loss):
     # print('original', actual_values.shape)
 
     pred = model.predict(X) #added for clf
-    print('original', actual_values)
-    print('pred1', pred)
+    # print('original', actual_values)
+    # print('pred1', pred)
     # for classification
     # pred = np.where(pred > 0, 1, 0)
     # print('pred1.1 ', pred[:5])

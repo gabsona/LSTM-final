@@ -64,7 +64,7 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     # 1st LSTM layer
     initializer = tf.keras.initializers.GlorotUniform()
 
-    grid_model.add(LSTM(100, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer)) # (30,4)
+    grid_model.add(LSTM(50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer)) # (30,4)
     grid_model.add(Dropout(0.2)) # 20% of the units will be dropped
 
     # #2nd LSTM layer
@@ -76,7 +76,7 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     # grid_model.add(Dropout(0.5))
 
     # 4th LSTM layer, we wont use return sequence true in last layers as we dont want to previous output
-    grid_model.add(LSTM(units=100, kernel_initializer='glorot_uniform'))
+    grid_model.add(LSTM(units=50, kernel_initializer='glorot_uniform'))
     grid_model.add(Dropout(0.5))
     grid_model.add(Dense(25))
     # Output layer , we wont pass any activation as its continous value model
@@ -148,3 +148,23 @@ def best_model(X_train, y_train,X_test,y_test,  model, cv):
 #     model.fit(X_train, y_train, epochs=50,validation_data=(X_test,y_test), validation_split=0.2, batch_size=64)
 #
 #     return model
+
+
+def model_building(X_train, y_train, X_test, y_test):
+    initializer = tf.keras.initializers.GlorotUniform()
+
+    model = Sequential()
+    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer))
+
+    model.add(Dropout(0.1))
+    model.add(LSTM(units=50))
+
+    model.add(Dense(1))
+
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
+    history = model.fit(X_train, y_train, epochs=100, validation_data=(X_test, y_test), verbose=1)
+
+    print('model:', model)
+
+    return model, history
+
