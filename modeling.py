@@ -162,7 +162,7 @@ def model_building(X_train, y_train, X_test, y_test):
     model.add(Dense(1))
 
     model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
-    history = model.fit(X_train, y_train, epochs=100, validation_data=(X_test, y_test), verbose=1)
+    history = model.fit(X_train, y_train, epochs=500, validation_data=(X_test, y_test), verbose=1)
 
     print('model:', model)
 
