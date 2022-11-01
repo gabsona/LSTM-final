@@ -14,7 +14,7 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
     plt.ylabel('Price')
     plt.legend()
     cwd = os.getcwd()
-    path = cwd + f'\\plots_{date}+init+500ep'
+    path = cwd + f'\\plots_{date}_300ep_lossmse_30days_bidirectional'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\plots_{date}\\plot_{ticker}_daily.png')
     plt.savefig(path + f'\\plot_{ticker}_{df_type}.png')
@@ -24,7 +24,7 @@ def plot_results(ticker, df, change, df_type, date = datetime.today().strftime('
     if change == 'absolute':
         plt.figure(figsize=(12, 6))
         plt.plot(pd.concat([df['Close_actual'], df['Added_changes']], axis=1))
-        plt.title('Close Prediction (OHLC unchanged with SMA)')
+        plt.title('Close Prediction (OHLC unchanged)')
         Path(path).mkdir(parents=True, exist_ok=True)
         # plt.savefig(cwd + f'\\plots_{date}\\absolute_change_{ticker}.png')
         plt.savefig(path + f'\\close_pred_{ticker}_{df_type}.png')
@@ -44,7 +44,7 @@ def plot_loss(history, my_model, ticker, date = datetime.today().strftime('%d.%m
     # plt.plot(my_model.history_['cosine_proximity'], color='blue')
     cwd = os.getcwd()
     print('cwd', cwd)
-    path = cwd + f'\\loss_plot_with_SMA_init_500ep_{date}'
+    path = cwd + f'\\loss_plot_300ep_lossmse_{date}_30days_bidirectional'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
     plt.savefig(path + f'\\plot_loss_{ticker}.png')
@@ -57,8 +57,8 @@ def plot_train_val(grid_result, ticker, date = datetime.today().strftime('%d.%m'
     plt.plot(train_scores, label='train')
     plt.legend(loc='best')
     cwd = os.getcwd()
-    path = cwd + f'\\train_val_plot_with_SMA_init_500ep_{date}'
+    path = cwd + f'\\train_val_plot_300ep_lossmse_{date}_30days_bidirectional'
     Path(path).mkdir(parents=True, exist_ok=True)
     # plt.savefig(cwd + f'\\loss_plot_{date}\\plot_loss_{ticker}.png')
-    plt.savefig(path + f'\\plot_loss_init_500ep_{ticker}.png')
+    plt.savefig(path + f'\\plot_loss_300ep_lossmse_{ticker}_30days_bidirectional.png')
     plt.close()

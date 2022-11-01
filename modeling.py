@@ -20,6 +20,7 @@ import os
 import joblib
 from datetime import datetime
 from keras.callbacks import LambdaCallback
+from keras.layers import Bidirectional
 
 from keras_tuner.tuners import RandomSearch, BayesianOptimization
 from tensorflow.keras import initializers
@@ -79,7 +80,7 @@ def build_model(X_train, loss, optimizer): #changed the layer of relu
     grid_model.add(LSTM(units=50, kernel_initializer='glorot_uniform'))
     grid_model.add(Dropout(0.5))
     grid_model.add(Dense(25))
-    # Output layer , we wont pass any activation as its continous value model
+    # Output layer , we wont pass any activation as it's continuous value model
     grid_model.add(Dense(1, activation = 'sigmoid'))
     grid_model.compile(loss = loss, optimizer = optimizer, metrics=['mse'])
     print('grid_model:', grid_model)
@@ -150,21 +151,28 @@ def best_model(X_train, y_train,X_test,y_test,  model, cv):
 #     return model
 
 
-def model_building(X_train, y_train, X_test, y_test):
+def model_building(X_train, y_train, X_test, y_test, unit_num, loss, optimizer, epoch):
     initializer = tf.keras.initializers.GlorotUniform()
 
     model = Sequential()
-    model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2]), kernel_initializer=initializer))
+    model.add(LSTM(units=unit_num,  activation='relu', return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
 
     model.add(Dropout(0.1))
-    model.add(LSTM(units=50))
+    model.add(LSTM(units=unit_num))
 
     model.add(Dense(1))
 
-    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_squared_error'])
-    history = model.fit(X_train, y_train, epochs=500, validation_data=(X_test, y_test), verbose=1)
+    model.compile(loss=loss, optimizer=optimizer, metrics=['mean_squared_error'])
+    history = model.fit(X_train, y_train, epochs=epoch, validation_data=(X_test, y_test), verbose=1)
 
     print('model:', model)
 
     return model, history
 
+def bidirectional_lstm_model(X_train, y_train, X_test, y_test):
+    model = Sequential()
+    model.add(Bidirectional(LSTM(50, activation='relu'), input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
+    history = model.fit(X_train, y_train, epochs=300, validation_data=(X_test, y_test), verbose=1)
+    return model, history

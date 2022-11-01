@@ -7,10 +7,12 @@ from helper_functions import *
 from bayesian import *
 
 import os
-from csv import DictWriter
+from csv import DictWriter, writer
 from datetime import datetime
 import tensorflow as tf
 import os.path
+import csv
+
 
 def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss = 'mse', problem_type = 'regression'):
 
@@ -34,7 +36,8 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     # my_model, grid_result = best_model(X_train, y_train,X_test,y_test, model, cv=5)
 
-    my_model, history = model_building(X_train, y_train, X_test, y_test)
+    # my_model, history = model_building(X_train, y_train, X_test, y_test, 50, 'mse', 'adam', 300)
+    my_model, history = bidirectional_lstm_model(X_train, y_train, X_test, y_test)
     # grid_mean_train = grid_result.cv_results_['mean_train_score']
     # grid_mean_test = grid_result.cv_results_['mean_test_score']
 
@@ -89,6 +92,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     min_loss_val = (min(history.history['val_loss']))
     final_loss_train = history.history['loss'][-1]
     final_loss_val = history.history['val_loss'][-1]
+
     return score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, min_loss_train, min_loss_val, final_loss_train, final_loss_val
 
     # return best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, grid_mean_train, grid_mean_test
@@ -96,50 +100,86 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     # return df_preds, df_preds_abs, classification_accuracy, precision, recall, f1, acc, best_score, best_params, mse_train, mse_test
 
-# def makemydir(df, stock, folder_name, df_type):
-#     cwd = os.getcwd()
-#     dir = os.path.join(cwd, folder_name + datetime.today().strftime('%d.%m'))
-#     if not os.path.exists(dir):
-#         os.makedirs(dir)
-#     # os.chdir(dir)
-#     df.to_csv(dir + f'\\df_{stock}_{df_type}.csv')
+def makemydir(df, stock, folder_name, df_type):
+    cwd = os.getcwd()
+    dir = os.path.join(cwd, folder_name + datetime.today().strftime('%d.%m'))
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+    # os.chdir(dir)
+    df.to_csv(dir + f'\\df_{stock}_{df_type}.csv')
 
 
 
 stocks = ['NFLX', 'MSFT', 'V', 'AMZN', 'TWTR', 'AAPL', 'GOOG', 'TSLA', 'NVDA', 'JNJ', 'UNH', 'XOM', 'JPM', 'CVX', 'MA', 'WMT', 'HD', 'PFE', 'BAC', 'LLY', 'KO', 'ABBV']
 
 # stocks = ['GOOG', 'HD', 'LLY', 'MSFT', 'NFLX', 'NVDA', 'PFE', 'TSLA', 'TWTR', 'UNH'] #stocks that had underfitting problem
-# stocks = ['V'] # no PG
+# stocks = ['V', 'MSFT'] # no PG
+
 
 for stock in stocks:
     print('stock: ', stock)
     # best_score, score_train, score_test, best_params, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, acc_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, acc_test = final_pred(stock)
-    score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, min_loss_train, min_loss_val, final_loss_train, final_loss_val = final_pred(stock)
+    score_train, score_test, df_preds_train, df_preds_abs_train, clf_acc_train, precision_train, recall_train, f1_train, df_preds_test, df_preds_abs_test, clf_acc_test, precision_test, recall_test, f1_test, min_loss_train, min_loss_val, final_loss_train, final_loss_val = final_pred(stock) #,unit_num, loss, optimizer, epoch)
 
     # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
     # makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_train, stock, "Unchanged prices with SMA +init+500ep", df_type = 'train')
+    makemydir(df_preds_abs_train, stock, "Unchanged prices 300ep mse loss 30 days bidirectional", df_type = 'train')
     # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_test, stock, "Unchanged prices with SMA +init+500ep", df_type = 'test')
+    makemydir(df_preds_abs_test, stock, "Unchanged prices 300ep mse loss 30 days bidirectional", df_type = 'test')
     # dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
 
     # Open your CSV file in append mode
     # Create a file object for this file
+    cwd_main = os.getcwd()
+    dir_dict = os.path.join(cwd_main, 'Scores')
+    if not os.path.exists(dir_dict):
+        os.makedirs(dir_dict)
+    os.chdir(dir_dict)
     field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Min loss train', 'Min loss val', 'Final loss train', 'Final loss val']
     dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test, 'Min loss train': min_loss_train, 'Min loss val': min_loss_val, 'Final loss train': final_loss_train, 'Final loss val': final_loss_val}
 
-    with open('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA_init_500ep.csv', 'a', newline='') as f_object:
+    file_description = 'unchanged_prices_OHLC_300ep_mseloss_30days_bidirectional'
+    file_name = 'dict_'+ datetime.today().strftime('%d.%m')+'_'+ file_description +'.csv'
+    file_exists = os.path.isfile(file_name)
+    with open(file_name, 'a', newline='') as f_object:
         dictwriter_object = DictWriter(f_object, fieldnames = field_names)
 
-        # file_exists = os.path.isfile('dict_'+ datetime.today().strftime('%d.%m')+'_unchanged_prices_OHLC_with_SMA.csv')
-
-        # if not file_exists:
-        #     dictwriter_object.writeheader()  # file doesn't exist yet, write a header
-
-        dictwriter_object.writeheader()  # file doesn't exist yet, write a header
+        if not file_exists:
+            dictwriter_object.writeheader()  # file doesn't exist yet, write a header
 
         # Passing the dictionary as an argument to the Writerow()
         dictwriter_object.writerow(dict_append)
 
         # Closing the file object
         f_object.close()
+    os.chdir(cwd_main)
+
+def stats():
+    df = pd.read_csv(dir_dict +'\\'+ file_name)
+    print('df', df)
+    print(df.mean(axis=0).values)
+    list_values = df.mean(axis=0).values.tolist()
+    list_values.insert(0,'Average values')
+    list_values_for_comparing = df.mean(axis=0).values.tolist()
+    list_values_for_comparing.append(file_description)
+    print('list_values_for_comparing',list_values_for_comparing)
+    means = pd.DataFrame(df.mean(axis=0)).T
+    print(df.append(means))
+    print(df.mean(axis=0))
+    with open(dir_dict +'\\'+ file_name,"a") as f_object:
+        # dictwriter_object = DictWriter(filee)
+        writer_object = writer(f_object)
+        writer_object.writerow(list_values)
+        f_object.close()
+    # with open(dir_dict+'\\'+ 'comparing_models.csv', "w+") as f:
+    #     # using csv.writer method from CSV package
+    #     write = csv.writer(f)
+    #     write.writerows(['Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Min loss train', 'Min loss val', 'Final loss train', 'Final loss val'])
+    #     f.close()
+    with open(dir_dict+'\\'+ 'comparing_models.csv', "a") as obj:
+
+        writer_object = writer(obj)
+        writer_object.writerow(list_values_for_comparing)
+        obj.close()
+
+stats()
