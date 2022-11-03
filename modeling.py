@@ -170,9 +170,11 @@ def model_building(X_train, y_train, X_test, y_test, unit_num, loss, optimizer, 
     return model, history
 
 def bidirectional_lstm_model(X_train, y_train, X_test, y_test):
+
     model = Sequential()
     model.add(Bidirectional(LSTM(50, activation='relu'), input_shape=(X_train.shape[1], X_train.shape[2])))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
     history = model.fit(X_train, y_train, epochs=300, validation_data=(X_test, y_test), verbose=1)
+
     return model, history

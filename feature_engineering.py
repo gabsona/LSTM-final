@@ -27,8 +27,8 @@ def data_split(data, division, split_criteria, scale, step_size, target_col_name
 
     if scale == 'yes':
         scaler = MinMaxScaler(feature_range=(0, 1))
-        df_for_training = scaler.fit_transform(dataset_train) #removed values.reshape(-1, 1) for minmaxscaler
-        df_for_test = scaler.transform(dataset_test)
+        df_for_training = scaler.fit_transform(dataset_train)#.values.reshape(-1, 1)) #removed values.reshape(-1, 1) for minmaxscaler
+        df_for_test = scaler.transform(dataset_test)#.values.reshape(-1, 1))
 
     else:
         scaler = None

@@ -14,7 +14,7 @@ import os.path
 import csv
 
 
-def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='no change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss = 'mse', problem_type = 'regression'):
+def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interval = '1d',  change='only close change', division='by date',split_criteria='2021-01-01', scale='yes', step_size=30, loss = 'mse', problem_type = 'regression'):
 
     data = download_data(ticker, start_date, end_date, interval)
     # data = all_indicators(data) # adds TIs
@@ -24,7 +24,7 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     # target_col_name = data_tr.columns[-2] # changes from -1
     # print('Target column: ', target_col_name)
 
-    target_col_name = 'Close'
+    target_col_name = 'Close_abs_change'
 
     X_train, y_train, X_test, y_test, scaler = data_split(data_tr, division, split_criteria, scale, step_size, target_col_name)
     print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
@@ -36,8 +36,8 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     # my_model, grid_result = best_model(X_train, y_train,X_test,y_test, model, cv=5)
 
-    # my_model, history = model_building(X_train, y_train, X_test, y_test, 50, 'mse', 'adam', 300)
-    my_model, history = bidirectional_lstm_model(X_train, y_train, X_test, y_test)
+    my_model, history = model_building(X_train, y_train, X_test, y_test, 50, 'mse', 'adam', 300)
+    # my_model, history = bidirectional_lstm_model(X_train, y_train, X_test, y_test)
     # grid_mean_train = grid_result.cv_results_['mean_train_score']
     # grid_mean_test = grid_result.cv_results_['mean_test_score']
 
@@ -58,8 +58,8 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
     y_train_close = np.array(data_tr.loc[start_date:'2021-01-01', target_col_name][step_size:])  # 'Close_abs_change' added
     y_test_close = np.array(data_tr.loc['2021-01-01':, target_col_name][step_size:]) #'Close_abs_change' added
 
-    preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss) #y_test_close_change
-    preds_test, score_test = prediction(my_model, y_test_close, X_test, scaler, loss)
+    preds_train, score_train = prediction(my_model, y_train_close, X_train, scaler, loss,data_tr, target_col_name) #y_test_close_change
+    preds_test, score_test = prediction(my_model, y_test_close, X_test, scaler, loss,data_tr, target_col_name)
 
     d_train = {'Close_actual': y_train_close, 'Close_prediction': preds_train} #y_test_close_change
     d_test = {'Close_actual': y_test_close, 'Close_prediction': preds_test} #y_test_close_change
@@ -67,9 +67,10 @@ def final_pred(ticker, start_date = '2018-01-01', end_date ='2022-01-01', interv
 
     data_pred_train = pd.DataFrame(data=d_train, index=data[step_size:len(preds_train) + step_size].index) #data[-len(preds):].index
     data_pred_test = pd.DataFrame(data=d_test, index=data[-len(preds_test):].index)
+    print('data_pred_train',data_pred_train.head())
 
-    df_preds_train, precision_train, recall_train, f1_train, clf_acc_train = classification(data_pred_train, data,df_type_='train', change=change)
-    df_preds_test, precision_test, recall_test, f1_test, clf_acc_test = classification(data_pred_test, data, df_type_='test', change=change)
+    df_preds_train, precision_train, recall_train, f1_train, clf_acc_train = classification(data_pred_train, data, target_col_name, step_size, df_type_='train', change=change)
+    df_preds_test, precision_test, recall_test, f1_test, clf_acc_test = classification(data_pred_test, data, target_col_name, step_size, df_type_='test', change=change)
     # print('df_preds_train', df_preds_train)
     # print('df_preds_test', df_preds_test)
     df_preds_abs_train = upd_df(df_preds_train, change = change)
@@ -123,9 +124,9 @@ for stock in stocks:
 
     # df_preds, df_preds_abs, clf_acc,precision, recall, f1, acc,  score, best_params, mse_train, mse_test = final_pred(stock, change='absolute', df_type='train')
     # makemydir(df_preds_train, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_train, stock, "Unchanged prices 300ep mse loss 30 days bidirectional", df_type = 'train')
+    makemydir(df_preds_abs_train, stock, "Only close change 300ep mse loss 30 days ", df_type = 'train')
     # makemydir(df_preds_test, stock, "Stock Price Prediction (absolute change) ", df_type = 'train')
-    makemydir(df_preds_abs_test, stock, "Unchanged prices 300ep mse loss 30 days bidirectional", df_type = 'test')
+    makemydir(df_preds_abs_test, stock, "Only close chang 300ep mse loss 30 days ", df_type = 'test')
     # dict_append = {'Stock': stock, 'Accuracy_train':clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Acc_train': acc_train, 'Acc_test': acc_test,'Best_score': best_score, 'Score_train':score_train, 'Score_test':score_test,'Best Parameters':best_params}
 
     # Open your CSV file in append mode
@@ -138,7 +139,7 @@ for stock in stocks:
     field_names = ['Stock', 'Accuracy_train', 'Accuracy_test', 'Precision_train', 'Precision_test', 'Recall_train', 'Recall_test', 'F1_train', 'F1_test', 'Score_train', 'Score_test', 'Min loss train', 'Min loss val', 'Final loss train', 'Final loss val']
     dict_append = {'Stock': stock, 'Accuracy_train': clf_acc_train, 'Accuracy_test':clf_acc_test,'Precision_train': precision_train, 'Precision_test': precision_test,'Recall_train': recall_train, 'Recall_test': recall_test,'F1_train': f1_train,'F1_test': f1_test, 'Score_train':score_train, 'Score_test':score_test, 'Min loss train': min_loss_train, 'Min loss val': min_loss_val, 'Final loss train': final_loss_train, 'Final loss val': final_loss_val}
 
-    file_description = 'unchanged_prices_OHLC_300ep_mseloss_30days_bidirectional'
+    file_description = 'only_close_change_300ep_mseloss_30days'
     file_name = 'dict_'+ datetime.today().strftime('%d.%m')+'_'+ file_description +'.csv'
     file_exists = os.path.isfile(file_name)
     with open(file_name, 'a', newline='') as f_object:

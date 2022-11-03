@@ -45,14 +45,16 @@ def data_transform(data, change):
         # data['Open_Close_abs_change'] = data['Close'] - data['Open']
 
         data = data.iloc[1:, 6:]
+    elif change == 'only close':
+
+        data = pd.DataFrame(data.Close)
 
     elif change == 'only close change':
 
         data['Close_abs_change'] = data.Close.shift(-1) - data.Close
         data['Close_abs_change'] = data['Close_abs_change'].shift(1)
 
-        # data = data.drop(columns=['Close', 'Adj Close', 'Volume'], axis=1)
-        data = data.Close_abs_change
+        data = pd.DataFrame(data.Close_abs_change)
 
     elif change == 'OHL only close change':
 

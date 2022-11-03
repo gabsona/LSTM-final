@@ -12,7 +12,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
-def prediction(model, actual_values, X, scaler, loss):
+def prediction(model, actual_values, X, scaler, loss, data, target_col_name):
     """
     Predicts unseen data
     Args:
@@ -37,7 +37,7 @@ def prediction(model, actual_values, X, scaler, loss):
     # print('pred1.1', pred.shape)
 
     prediction_copies_array = np.repeat(pred, X.shape[2], axis=-1)
-    pred = scaler.inverse_transform(np.reshape(prediction_copies_array, (len(pred), X.shape[2])))[:, 3]
+    pred = scaler.inverse_transform(np.reshape(prediction_copies_array, (len(pred), X.shape[2])))[:,data.columns.get_loc(target_col_name)]#[:, 3]
 
     # pred = np.reshape(pred, (len(prediction),))# X_test.shape[2]))
     # print(pred.shape)
@@ -59,7 +59,7 @@ def prediction(model, actual_values, X, scaler, loss):
 
 
 
-def classification(data, data_main, df_type_, change):
+def classification(data, data_main, target_col_name, step_size, df_type_, change):
     """
     This function is used when we do regression. Finds whether model can accurately predict the direction of predictions
     Args:
@@ -71,7 +71,7 @@ def classification(data, data_main, df_type_, change):
         data: dataset with classification results (0,1)
 
     """
-    if change == 'no change':
+    if change == 'no change' or 'only close':
 
         data['Actual_change'] = np.where(data['Close_actual'] < data['Close_actual'].shift(1), 0, 1)
         data['Pred_change'] = np.where(data['Close_actual'] > data['Close_prediction'].shift(-1), 0, 1)
@@ -80,20 +80,22 @@ def classification(data, data_main, df_type_, change):
         data['Pred_change'] = data['Pred_change'].astype(int)
         classification_accuracy = len(data[(data.Actual_change == data.Pred_change)]) / len(data)
 
-    elif change == 'absolute':
+    elif change == 'absolute'or 'only close change':
 
         data['Actual_change'] = np.where(data['Close_actual'] < 0, 0, 1)
         data['Pred_change'] = np.where(data['Close_prediction'] < 0, 0, 1)
         data = data[1:]
         data['Pred_change'] = data['Pred_change'].astype(int)
         if df_type_ == 'train':
-            data['Close_actual'] = data_main.loc['2018-01-01':'2021-01-01', 'Close'][30:] #'2021-01-01':
+            data['Close_actual'] = data_main.loc['2018-01-01':'2021-01-01', target_col_name][step_size:] #'2021-01-01':
         if df_type_ == 'test':
-            data['Close_actual'] = data_main.loc['2021-01-01':, 'Close'][30:]  # '2021-01-01':
+            data['Close_actual'] = data_main.loc['2021-01-01':, target_col_name][step_size:]  # '2021-01-01':
         # data['Close_prediction'] = dataset_test['Close'].shift(1) + data.Close_prediction_change
 
     elif change == 'classification':
         data.rename(columns = {'Close_actual': 'Actual_change', 'Close_prediction':'Pred_change'}, inplace = True)
+    else:
+        raise Exception('Wrong input')
 
     precision = precision_score(data.Actual_change, data.Pred_change)
     print('precision', precision)
